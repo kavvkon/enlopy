@@ -3,30 +3,6 @@ import pandas as pd
 from functools import wraps
 
 
-def harmonize_input(f, req_time_index=False, x_type=pd.Series):  #TODO Should I still do it as decorator?
-    """Prepare input for processing. Timeseries should be a nd array.
-        #Should all methods get the same input? decorator
-
-    :param f:
-    :return:
-    """
-
-    @wraps(f)
-    def wrapper(x, *args, **kwds):
-        if isinstance(x,np.ndarray):
-            if len(x.shape) == 1:  # not 1D
-                return f(x, *args, **kwds)
-            else:  # TODO:treat 2d
-                return f(x, *args, **kwds)
-        elif isinstance(x,pd.Series):
-            return f(x, *args, **kwds)
-        elif isinstance(x,pd.DataFrame): #convert to series
-            return f(x.squeeze(), *args, **kwds)
-        else:
-            return np.nan  #if not recognized type do not run function
-    return wrapper
-
-
 def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
     """Convert numpy array to a pandas series with a timed index.
     Parameters:

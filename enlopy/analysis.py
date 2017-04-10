@@ -3,7 +3,6 @@ import pandas as pd
 
 from .utils import clean_convert, _freq_to_sec
 
-#TODO: __all__ =[]
 __all__ = ['reshape_timeseries', 'get_LDC', 'get_load_archetypes', 'get_load_stats']
 
 def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
@@ -102,7 +101,7 @@ def get_load_stats(Load, per='a'):
     p_dict = {}
     for period, load_per in g:
         ind = str(period.to_period())
-        p_dict[ind] = {k: v(load_per) for k, v in all_stats_desc.items()}  # FIXME: does it work with namedt ?
+        p_dict[ind] = {k: v(load_per) for k, v in all_stats_desc.items()}  #  named tuple instead of dict?
     return pd.DataFrame.from_dict(p_dict)
 
 
@@ -124,5 +123,4 @@ def countweekend_days_per_month(df, weekdays=True):     #TODO generalize count_x
         m_count = Counter([day.weekday() for day in values])
         out.append(m_count[5] + m_count[6]) # 5,6 is saturday sunday
     return out
-    #TODO return
     #TODO fix to daily
