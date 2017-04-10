@@ -21,10 +21,10 @@ install:
 - python setup.py develop
 
 script:
-  - py.test
+ - py.test
 
 after_script:
-  - source deactivate
+ - source deactivate
 
 deploy:
   - provider: pypi
@@ -41,5 +41,5 @@ deploy:
     on:
      tags: True
 cache:
-  directories:
-- $HOME/.cache/pip
+ directories:
+  - $HOME/.cache/pip
