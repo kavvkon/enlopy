@@ -1,8 +1,7 @@
 import numpy as np
-import pandas as pd
 
-from enload.utils import make_timeseries
-from enload.analysis import reshape_timeseries
+from enlopy.utils import make_timeseries
+from enlopy.analysis import reshape_timeseries
 
 
 def test_reshape_timeseries():

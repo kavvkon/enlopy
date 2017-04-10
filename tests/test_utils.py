@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from enload import make_timeseries, reshape_timeseries, clean_convert
-from enload.utils import _freq_to_sec
+from enlopy import make_timeseries, reshape_timeseries, clean_convert
+from enlopy.utils import _freq_to_sec
 
 
 class Test_make_timeseries():

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from enload import (add_noise, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
+from enlopy import (add_noise, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
                     disag_upsample, make_timeseries, clean_convert, countweekend_days_per_month)
 
 class Test_noise():
