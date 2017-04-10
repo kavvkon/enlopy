@@ -1,0 +1,34 @@
+language: python
+python:
+- '2.7'
+- '3.5'
+install:
+- sudo apt-get update
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
+  -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  -O miniconda.sh; fi
+- bash miniconda.sh -b -p $HOME/miniconda
+- export PATH="$HOME/miniconda/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda
+- conda info -a
+- conda create -q -f environment.yml
+- source activate enlopy
+- python setup.py install
+script:
+  - pytest
+deploy:
+  - provider: pypi
+    server: https://testpypi.python.org/pypi
+    user: kavvkon
+    password:
+     secure: jZkFt5epKxx0jKxlEiJZRRj6GvPWTHI6P7Su8cMPYlejusv4sAWelldFzkKlb1yi9fwbNJCM40n615n+Ighx5RjfyjuQhKl+3oe6Yicl/vhu48Sx5FOXDHP2hsN8/v3xYVKwpo8Jh028OOdaU8pCtMEbif4aKmG6IeexE9d7iYbEZqHDTfzzhNobhmSNoPNed+heBjYRO0rB+YMks/IM+YiTmbQKurTmYTeDC8EAQQdUIqzKSDRHulC7w+a1d4Bc4pdG4xbicqRrCWUh185NsD9+aIHszdVERAnoX6ctvkFNcHEduXhpKR4FxB0a03ITMlMuXXs6llTPO4kUPQYzVVBTZbJSGPN0Fs+oTUZbg0EpCkJmbZ6EBfXsFxl5ok3ms2OUt5OmlvyQZKgPwwVhGB8S73Iap99nFBPTWowsKvTMp9nXulPsgZmYHhfjpBsABApq4SP5oGUjzbbp3ysHAyFtlhRTR/6D10yIWXS3yPsP9bC3m/UVfBDH5v7m/MU+RQ5a/PBq/RB6vFAA/Yxzw2qCSzl8lXJt2sme6XJuKCFhzc9IAvXo+gwQCM/psrGRSDF44bS1D3m3u2jmor2N4ygaSih0ryoYAnZsICHprNwtNgq/pcakCd9umsTrtbZGWkYxBDfG6rdiD27c5ejxJsNG2arJ7sYLSm0Qa0BCJp0=
+    on:
+     tags: False
+  - provider: pypi
+    user: kavvkon
+    password:
+      secure: jZkFt5epKxx0jKxlEiJZRRj6GvPWTHI6P7Su8cMPYlejusv4sAWelldFzkKlb1yi9fwbNJCM40n615n+Ighx5RjfyjuQhKl+3oe6Yicl/vhu48Sx5FOXDHP2hsN8/v3xYVKwpo8Jh028OOdaU8pCtMEbif4aKmG6IeexE9d7iYbEZqHDTfzzhNobhmSNoPNed+heBjYRO0rB+YMks/IM+YiTmbQKurTmYTeDC8EAQQdUIqzKSDRHulC7w+a1d4Bc4pdG4xbicqRrCWUh185NsD9+aIHszdVERAnoX6ctvkFNcHEduXhpKR4FxB0a03ITMlMuXXs6llTPO4kUPQYzVVBTZbJSGPN0Fs+oTUZbg0EpCkJmbZ6EBfXsFxl5ok3ms2OUt5OmlvyQZKgPwwVhGB8S73Iap99nFBPTWowsKvTMp9nXulPsgZmYHhfjpBsABApq4SP5oGUjzbbp3ysHAyFtlhRTR/6D10yIWXS3yPsP9bC3m/UVfBDH5v7m/MU+RQ5a/PBq/RB6vFAA/Yxzw2qCSzl8lXJt2sme6XJuKCFhzc9IAvXo+gwQCM/psrGRSDF44bS1D3m3u2jmor2N4ygaSih0ryoYAnZsICHprNwtNgq/pcakCd9umsTrtbZGWkYxBDfG6rdiD27c5ejxJsNG2arJ7sYLSm0Qa0BCJp0=
+    on:
+     tags: True
