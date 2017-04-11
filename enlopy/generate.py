@@ -3,7 +3,6 @@
 Methods that generate or adjusted energy related timeseries based on given assumptions/input
 """
 from __future__ import absolute_import, division, print_function
-from future.builtins.iterators import filter, map, zip
 
 import numpy as np
 import pandas as pd
@@ -20,21 +19,22 @@ __all__ = ['disag_upsample', 'gen_load_from_daily_monthly', 'gen_load_sinus', 'g
 
 _EPS = np.finfo(np.float64).eps
 
-def disag_upsample(Load1, disag_profile, to_offset='h'):
+def disag_upsample(Load, disag_profile, to_offset='h'):
     """ Upsample given timeseries, disaggregating based on given load profiles.
-    e.g. From daily to hourly. Each day is split. The sum of each day remains the same.
+    e.g. From daily to hourly. The load of each day is distributed according to the disaggregataion profile. The sum of each day remains the same.
+    
+    Arguments:
+        Load (pd.Series): Load profile to disaggregate
+        disag_profile (pd.Series): disaggregation profile to be used on each timestep of the load
+        to_offset (str): Resolution of upsampling. has to be a valid pandas offset alias. (check `here <http://pandas.pydata.org/pandas-docs/stable/timeseries.html#offset-aliases>`__ for all available offsets)
+    Returns:
+        pd.Series: the upsampled timeseries
    """
-    # def custom_resampler(array_like):
-    #        return np.sum(array_like)+5
-    # series.resample('15m').apply(custom_resampler)
-    # Different per day of the week ?
-
-
-    #First have to reindex to the full
-    orig_freq = Load1.index.freqstr
-    start = Load1.index[0]
-    end = Load1.index[-1] + 1 #An extra period is needed at the end to match the sum FIXME
-    df1 = Load1.reindex(pd.date_range(start, end, freq=to_offset))
+    #First reindexing to the new resolution.
+    orig_freq = Load.index.freqstr
+    start = Load.index[0]
+    end = Load.index[-1] + 1 #An extra period is needed at the end to match the sum FIXME
+    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset))
 
     def mult_profile(x, profile):
         #Normalizing to keep the sum the same..
@@ -91,19 +91,17 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
 def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_2):
     """Generate sinusoidal load with daily, weekly and yearly seasonality. Each term is estimated based on 
      the following expression:
-            .. math:: f(x;A1,A2,w) =  A1 * np.cos(2 * \\pi/w * x) + A2 * np.sin(2 * \\pi/w * x)
+     :math:`f(x;A1,A2,w) =  A1 \\cos(2 \\pi/w \\cdot x) + A2 \\sin(2 \\pi/w \\cdot x)`
+
     Arguments:
-        daily_1 (float): cosine coefficient for daily component
-        daily_2 (float): sinus coefficient for daily component
-        monthly_1 (float): cosine coefficient for monthly component
-        monthly_2 (float): sinus coefficient for monthly component
-        annually_1 (float): cosine coefficient for annual component
-        annually_2 (float): sinus coefficient for annual component
+        daily_1 (float): cosine coefficient for daily component (period 24)
+        daily_2 (float): sinus coefficient for daily component (period 24)
+        monthly_1 (float): cosine coefficient for monthly component (period 168)
+        monthly_2 (float): sinus coefficient for monthly component (period 168)
+        annually_1 (float): cosine coefficient for annual component (period 8760)
+        annually_2 (float): sinus coefficient for annual component (period 8760)
     Returns:
         pd.Series: Generated timeseries
-
-    Arguements:
-    :type daily_1: object
     """
     def sinusFunc(x, w, A1, A2): # fourrier coefficient
         return A1 * np.cos(2 * np.pi/w * x) + A2 * np.sin(2 * np.pi/w * x)
@@ -123,11 +121,12 @@ def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_
 
 
 def gen_corr_arrays(Na, hours, M):
-    """ Generating correlated normal variates
+    """ Generating correlated normal variates.
     Assume one wants to create a vector of random variates Z which is
     distributed according to Z~N(μ,Σ) where μ is the vector of means,
     and Σ is the variance-covariance matrix.
     http://comisef.wikidot.com/tutorial:correlateduniformvariates
+    
     Arguments:
         Na: number of vectors e.g (3)
         hours: vector size (e.g 8760 hours)
@@ -173,13 +172,16 @@ def gen_load_from_LDC(LDC, Y=None, N=8760):
     """ Generate loads based on a Inverse CDF, such as a Load Duration Curve
     Inverse transform sampling: Compute the value x such that F(x) = u.
     Take x to be the random number drawn from the distribution described by F.
-        LDC: 2 x N vector of the x, y coordinates of an LDC function.
+    
+    Arguments:
+        LDC (np.ndarray): Load duration curve (2 x N) vector of the x, y coordinates of an LDC function (results of (get_LDC).
             x coordinates have to be normalized (max = 1 ==> 8760hrs )
-        Y (optional): a vector of random numbers. To be used for correlated loads.
-            If None is supplied a random vector (8760) will be created.
-        N (optional): Length of produced timeseries (if Y is not provided)
+        Y (nd.array): a vector of random numbers. To be used for correlated loads.
+        If None is supplied a random vector (8760) will be created.
+        N (int): Length of produced timeseries (if Y is not provided)
 
-    Returns a vector with the same size as Y that follows the LDC distribution
+    Returns:
+         np.ndarray: a vector with the same size as Y that follows the LDC distribution
     """
     # func_inv = scipy.interpolate.interp1d(LDC[0], a[1])
     # simulated_loads = func_inv(Y)
@@ -200,18 +202,20 @@ def gen_load_from_PSD(Sxx, x, dt=1):
     density Sxx(w) and probability density function p(x).
     This is done by an iterative process which 'shuffles' the timeseries till
     convergence of both power spectrum and marginal distribution is reached.
-    Also known as "Iterated Amplitude Adjusted Fourier Transform (IAAFT)"
+    Also known as "Iterated Amplitude Adjusted Fourier Transform (IAAFT)".
     Adopted from:
-    J.M. Nichols, C.C. Olson, J.V. Michalowicz, F. Bucholtz, (2010)
+    `J.M. Nichols, C.C. Olson, J.V. Michalowicz, F. Bucholtz, (2010)
     "A simple algorithm for generating spectrally colored, non-Gaussian signals
-    Probabilistic Engineering Mechanics", Vol 25, 315-322
-    Schreiber, T. and Schmitz, A. (1996) "Improved Surrogate Data for
-    Nonlinearity Tests", Physical Review Letters, Vol 77, 635-638.
+    Probabilistic Engineering Mechanics", Vol 25, 315-322` and 
+    `Schreiber, T. and Schmitz, A. (1996) "Improved Surrogate Data for
+    Nonlinearity Tests", Physical Review Letters, Vol 77, 635-638.`
 
     Arguments:
         Sxx: Spectral density (two sided)
         x: Sequence of observations created by the desirable PDF
         dt: Desired temporal sampling interval. [Dt = 2pi / (N * Dw)]
+    Returns:
+        pd.Series: The spectrally corrected timeseries
 
     """
     N = len(x)
@@ -239,7 +243,7 @@ def gen_load_from_PSD(Sxx, x, dt=1):
         out[indx] = xo  # rank reorder (simulate nonlinear transform)
         k = k + 1  # increment counter
         if np.array_equal(indx, indxp):
-            print('Converged after %i iterations') % k
+            print('Converged after {} iterations').format(k)
             k = 0  # if we converged, stop
         indxp = indx  # re-set ordering for next iter
     out = out + mx  # Put back in the mean
@@ -247,24 +251,27 @@ def gen_load_from_PSD(Sxx, x, dt=1):
 
 
 def add_noise(Load, mode, st, r=0.9, Lmin=0):
-    """ Add noise based on specific distribution
-    LOAD_ADDNOISE Add noise to a 1x3 array [El Th Co].
-       Mode 1 = Normal Dist
-       Mode 2 = Uniform Dist
-       Mode 3 = Gauss Markov
-       st = Noise parameter. Scaling of random values
+    """ Add noise with given characteristics.
+    
+    Arguments:
+        Load (pd.Series,pd.DataFrame): 1d or 2d timeseries
+        mode (int):1 Normal Distribution, 2: Uniform Distribution, 3: Gauss Markov (autoregressive gaussian)
+        st (float): Noise parameter. Scaling of random values
+        r (float): Applies only for mode 3. Autoregressive coefficient AR(1). Has to be between  [-1,1]
+        Lmin (float): minimum load values. This is used to trunc values below zero if they are generated with a lot of noise
+    Returns:
+        pd.Series: Load with noise
     """
     def GaussMarkov(mu, st, r):
-        """A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa
-        A Gauss-Markov load model for the application in risk evaluation
-        and production simulation
-        Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
+        """Based on
+        A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
+        and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
         Arguments:
             mu: array of means. Can be either 1d or 2d
             st: array of standard deviations. Can be either 1d or 2d
-            r: autocorrelation (one lag) coefficient. Has to be between [-1,1]
+            r:  Autoregressive coefficient AR(1). Has to be between  [-1,1]
         Returns:
-            a realization of the timeseries
+            pd.Series,pd.DataFrame: a realization of the timeseries
 
         """
         mu = np.atleast_2d(mu)
@@ -305,13 +312,13 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
 
 
 def gen_analytical_LDC(U, duration=8760, bins=1000):
-    """Generates the Load Duration Curve based on empirical parameters.
-        .. math:: f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}
+    """Generates the Load Duration Curve based on empirical parameters. The following equation is used.
+    :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
     
     Arguments:
         U(dict): parameter vector [Peak load, capacity factor%, base load%, hours]
     Returns:
-        (np.array) a 2D array [x, y] ready for plotting (e.g. plt(*gen_analytical_LDC(U)))
+        (np.array) a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
     """
     if isinstance(U,dict):
         P = U['peak']  # peak load
@@ -332,8 +339,9 @@ def gen_analytical_LDC(U, duration=8760, bins=1000):
 def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05, shave=False):
     """Simulate a demand response mechanism that makes the load profile less peaky.
     The load profile is analyzed per selected period (currently month month) and the peak hours have their load shifted
-     to low load hours or shaved. When not shaved the total load is the same as that one from the initial timeseries,
-     otherwise it is smaller due to the shaved peaks. The ppeak load is reduced by a predefined percentage.
+    to low load hours or shaved. When not shaved the total load is the same as that one from the initial timeseries,
+    otherwise it is smaller due to the shaved peaks. The peak load is reduced by a predefined percentage.
+     
     Arguments:
         Load (pd.Series): Load 
         percent_peak_hrs_month (float): fraction of hours to be shifted
@@ -388,7 +396,9 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
 
 
 def detect_outliers(Load, threshold=None, window=5, plot_diagnostics=False):
-    """ . Inspired by https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
+    """ Remove outliers based on median rolling window filtering.
+    Inspired by https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
+    
     Arguments:
         Load: input timeseries
         threshold: if None then 3 sigma is selected as threshold

@@ -35,13 +35,19 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
                          aggfunc=aggfunc).T
 
 
-def get_LDC(Load, x_norm=True, y_norm=False, bins=999, trunc_0=False, plot=True):
+def get_LDC(Load, x_norm=True, y_norm=False, bins=999, trunc_0=False):
     """Generates the Load Duration Curve based on a given load
-    Load (pd.Series): energy timeseries
+    
+    Arguments:
+        Load (pd.Series): energy timeseries
+        x_norm (bool): Normalize x axis (0,1)
+        y_norm (bool): Normalize y axis (0,1)
+        bins (int): how many
+        trunc_0 (bool): If true remove all values under zero
     Returns:
-
-    Returns an array [x, y] ready for plotting (e.g. plt(*LDC_load(load)))
+        np.ndarray: array [x, y] ready for plotting (e.g. plt(\*LDC_load(load)))
     """
+
     # remove nan because histogram does not work
     load_masked = Load[~np.isnan(Load)]
     n, xbins = np.histogram(load_masked, bins=bins, density=True)
@@ -86,12 +92,14 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
 
 
 def get_load_stats(Load, per='a'):
-    """Find load profile characteristics
-    To be used for validation of simulated loads.
+    """Find load profile characteristics. Among other it estimates: peak, load factor, base load factor, operating hours,
+    
+    
     Arguments:
         load: timeseries of load to be examined
+        per: reporting periods. Annual by default. Based on pandas time offsets 
     Returns:
-         (dict) Parameter dictionary {peak, load factor, base load factor, operating hours}
+         dict: Parameter dictionary
     """
      #TODO 2D
     from .stats import all_stats_desc

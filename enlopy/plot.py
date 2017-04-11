@@ -1,12 +1,6 @@
-
-# Temporary fix: Required in order to work with pycharm.
-import matplotlib as mpl
-#mpl.use('TkAgg')
-
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-import pandas as pd
 
 from .analysis import reshape_timeseries, clean_convert, get_LDC
 
@@ -15,14 +9,15 @@ __all__ = ['plot_heatmap', 'plot_3d', 'plot_percentiles', 'plot_rug', 'plot_boxp
 def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
                 palette='Oranges', colorbar=True, ax=None, **pltargs):
     """ Returns a 2D heatmap of the reshaped timeseries based on x, y
-    Parameters:
+    
+    Arguments:
         Load: 1D pandas with timed index
         x: Parameter for reshape_timeseries()
         y: Parameter for reshape_timeseries()
         bins: Number of bins for colormap
         palette: palette name (from colorbrewer, matplotlib etc.)
         **pltargs: Exposes matplotlib.plot arguments
-    Returns
+    Returns:
         2d heatmap
     """
     x_y = reshape_timeseries(Load, x=x, y=y, aggfunc=aggfunc)
@@ -42,7 +37,8 @@ def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
 def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
            palette='Oranges', colorbar=True, **pltargs):
     """ Returns a 30 plot of the reshaped timeseries based on x, y
-    Parameters:
+    
+    Arguments:
         Load: 1D pandas with timed index
         x: Parameter for reshape_timeseries()
         y: Parameter for reshape_timeseries()
@@ -76,6 +72,7 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
 
 def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50], ax=None, figsize=(10, 5),color='blue', **kwargs):
     """Plot predefined percentiles per timestep
+    
     Arguments:
         Load: 1D pandas with timed index
         x (str): x axis aggregator. See reshape_timeseries()
@@ -113,10 +110,13 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
 
 def plot_boxplot(Load, by='day', **pltargs):
     """Return boxplot plot for each day of the week
+    
     Arguments:
         Load : 1D pandas Series with timed index
         by: make plot by day or hour
         **pltargs: Exposes matplotlib.plot arguments
+    Returns:
+        plot
     """
     Load = clean_convert(Load,force_timed_index=True)
 
@@ -137,6 +137,17 @@ def plot_boxplot(Load, by='day', **pltargs):
 
 
 def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
+    """Plot Load duration curve
+    
+    Arguments:
+        Load (bool): 1D pandas Series with timed index
+        x_norm (bool): 
+        y_norm (bool): 
+        color (str): 
+        kwargs (dict): 
+    Returns:
+        Load duration curve plot
+    """
     a = get_LDC(Load, x_norm=x_norm, y_norm=y_norm,  **kwargs)
     #TODO: make it work with 2d
     plt.plot(*a, color=color)
@@ -156,14 +167,14 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
 
 def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
     """Create multiaxis rug plot from pandas Dataframe
-    Parameters:
+    
+    Arguments:
         df_series: 2D pandas with timed index
-        on_off: if True all points that are above 0 will be plotted as one color.
-                If False all values will be colored based on their value.
+        on_off: if True all points that are above 0 will be plotted as one color. 
+        If False all values will be colored based on their value.
         cmap: palette name (from colorbrewer, matplotlib etc.)
     Returns:
         plot
-
     """
     def format_axis(iax):
         # Formatting: remove all lines (not so elegant)

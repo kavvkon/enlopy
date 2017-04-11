@@ -23,8 +23,7 @@ version = enlopy.__version__
 requirements = ['numpy>=1.10',
                 'scipy>=0.15',
                 'matplotlib>=1.5',
-                'pandas>=0.18',
-                'future>=0.10']
+                'pandas>=0.18']
 
 setup(
     name="enlopy",

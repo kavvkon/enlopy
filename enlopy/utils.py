@@ -5,7 +5,9 @@ __all__ = ['make_timeseries', 'clean_convert']
 
 
 def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
-    """Convert numpy array to a pandas series with a timed index.
+    """Convert numpy array to a pandas series with a timed index. Convenience wrapper around a
+     datetime-indexed pd.DataFrame.
+    
     Parameters:
         x: (nd.array) raw data to wrap into a pd.Series
         startdate: pd.datetime
@@ -52,7 +54,12 @@ def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
 
 
 def _freq_to_sec(freq_keyword):
-    """ Converts pandas frequency string keyword to seconds"""
+    """ Converts pandas frequency string keyword to seconds. Not all frequency offsets can be converted to seconds.
+    
+    Arguments:
+        freq_keyword: frequency based on pandas offsets
+    Returns:
+        int: corresponding seconds """
     from pandas.tseries.frequencies import to_offset
 
     try:
@@ -62,17 +69,18 @@ def _freq_to_sec(freq_keyword):
 
 
 def clean_convert(x, force_timed_index=True, year=2015, always_df=False):
-    """Convert vector or matrix or dataframe to pandas series or dataframe, depending on the
-    compatibility and the requirements.
-
-
-    :param x: Vector or matrix of numbers. it can be pd.DataFrame, pd.Series, np.ndarray or list
-    :param force_timed_index: (bool) if True it will return a timeseries index
-
-    :param always_df: (bool) if True it will always return a dataframe
-    :return:
+    """Converts a list, a numpy array, or a dataframe to pandas series or dataframe, depending on the
+    compatibility and the requirements. Designed for maximum compatibility.
+    
+    Arguments:
+        x (list, np.ndarray): Vector or matrix of numbers. it can be pd.DataFrame, pd.Series, np.ndarray or list
+        force_timed_index (bool): if True it will return a timeseries index
+        year (int): Year that will be used for the index
+        always_df (bool): always return a dataframe even if the data is one dimensional
+    Returns:
+        pd.Series: Timeseries
+        
     """
-
 
     if isinstance(x, list):  # nice recursions
         return clean_convert(pd.Series(x), force_timed_index, year, always_df)
