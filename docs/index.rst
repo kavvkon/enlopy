@@ -47,11 +47,11 @@ It consists of four modules that include among others the following:
 * ``Analysis``: Overview of descriptive statistics, reshape, load duration curve, extract daily archetypes (clustering)
 * ``Plot``: 2d heatmap, 3d plot, boxplot, rugplot
 * ``Generate``: generate from daily and monthly profiles, generate from sinusoidal function, sample from given load duration curve, or from given PSD, add noise gaussian and autoregressive noise, genrate correlated load profiles , fit to analytical load duration curve
-* ``Stats``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
+* ``Statistics``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
 
 This library is not focusing on regression and prediction (e.g. ARIMA, state-space etc.), since there are numerous relevant libraries around.
 
-The documentation is under development. Please check the source code, the :ref:`API` or the example notebooks in the github repository for feature details.
+The documentation is under development. Please check the source code, the :ref:`API` or the example `jupyter notebook <https://github.com/kavvkon/enlopy/blob/master/notebooks/Basic%20examples.ipynb>`__ in the github repository for feature details.
 
 Contents
 --------

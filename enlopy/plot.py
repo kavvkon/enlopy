@@ -77,8 +77,7 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
         Load: 1D pandas with timed index
         x (str): x axis aggregator. See reshape_timeseries()
         y (str): similar to above for y axis
-        perc_list(list): List of percentiles to plot. If it is an integer then it will be plotted as a line.
-        If it is list it has to contain two items and it will be plotted using fill_between()
+        perc_list(list): List of percentiles to plot. If it is an integer then it will be plotted as a line. If it is list it has to contain two items and it will be plotted using fill_between()
         **kwargs: exposes arguments of plt.fill_between()
     Returns:
         Plot
@@ -141,10 +140,10 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
     
     Arguments:
         Load (bool): 1D pandas Series with timed index
-        x_norm (bool): 
-        y_norm (bool): 
-        color (str): 
-        kwargs (dict): 
+        x_norm (bool): Normalize x axis (0,1)
+        y_norm (bool): Normalize y axis (0,1)
+        color (str): color of line
+        kwargs (dict): exposes arguments of get_LDC()
     Returns:
         Load duration curve plot
     """

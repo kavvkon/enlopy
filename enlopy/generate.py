@@ -89,8 +89,7 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
 
 
 def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_2):
-    """Generate sinusoidal load with daily, weekly and yearly seasonality. Each term is estimated based on 
-     the following expression:
+    """Generate sinusoidal load with daily, weekly and yearly seasonality. Each term is estimated based on the following expression:
      :math:`f(x;A1,A2,w) =  A1 \\cos(2 \\pi/w \\cdot x) + A2 \\sin(2 \\pi/w \\cdot x)`
 
     Arguments:
@@ -200,19 +199,16 @@ def gen_load_from_PSD(Sxx, x, dt=1):
     """
     Algorithm for generating samples of a random process conforming to spectral
     density Sxx(w) and probability density function p(x).
-    This is done by an iterative process which 'shuffles' the timeseries till
-    convergence of both power spectrum and marginal distribution is reached.
-    Also known as "Iterated Amplitude Adjusted Fourier Transform (IAAFT)".
-    Adopted from:
-    `J.M. Nichols, C.C. Olson, J.V. Michalowicz, F. Bucholtz, (2010)
-    "A simple algorithm for generating spectrally colored, non-Gaussian signals
-    Probabilistic Engineering Mechanics", Vol 25, 315-322` and 
-    `Schreiber, T. and Schmitz, A. (1996) "Improved Surrogate Data for
-    Nonlinearity Tests", Physical Review Letters, Vol 77, 635-638.`
-
+    
+    .. note::
+        This is done by an iterative process which 'shuffles' the timeseries till convergence of both
+        power spectrum and marginal distribution is reached.
+        Also known as "Iterated Amplitude Adjusted Fourier Transform (IAAFT). Adopted from `J.M. Nichols, C.C. Olson, J.V. Michalowicz, F. Bucholtz, (2010), "A simple algorithm for generating spectrally colored, non-Gaussian signals" Probabilistic Engineering Mechanics, Vol 25, 315-322`
+        and `Schreiber, T. and Schmitz, A. (1996) "Improved Surrogate Data for Nonlinearity Tests", Physical Review Letters, Vol 77, 635-638.`
+        
     Arguments:
         Sxx: Spectral density (two sided)
-        x: Sequence of observations created by the desirable PDF
+        x: Sequence of observations created by the desirable PDF. You can use :meth:`gen_load_from_LDC` for that.
         dt: Desired temporal sampling interval. [Dt = 2pi / (N * Dw)]
     Returns:
         pd.Series: The spectrally corrected timeseries

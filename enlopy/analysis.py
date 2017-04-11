@@ -10,7 +10,7 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
     timeslices. e.g. time of day vs day of year
 
     Parameters:
-        Load (Series): timeseries
+        Load (pd.Series): timeseries
         x (str): x axis aggregator. Has to be an accessor of pd.DatetimeIndex
          (year, dayoftime, week etc.)
         y (str): similar to above for y axis
@@ -39,10 +39,10 @@ def get_LDC(Load, x_norm=True, y_norm=False, bins=999, trunc_0=False):
     """Generates the Load Duration Curve based on a given load
     
     Arguments:
-        Load (pd.Series): energy timeseries
+        Load (pd.Series): timeseries
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
-        bins (int): how many
+        bins (int): how many values to plot
         trunc_0 (bool): If true remove all values under zero
     Returns:
         np.ndarray: array [x, y] ready for plotting (e.g. plt(\*LDC_load(load)))
@@ -62,8 +62,18 @@ def get_LDC(Load, x_norm=True, y_norm=False, bins=999, trunc_0=False):
 
 
 def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=False):
-    """Use kmeans and vq in order to get typical load profiles.
-    """ #TODO ref
+    """Extract typical load profiles using k-means and vector quantization. the time scale of archetypes depend on the selected dimensions (x,y).
+    For the default values daily archetypes will be extracted.
+    
+    Parameters:
+        Load (pd.Series): timeseries 
+        k (int): number of archetypes to identify and extract
+        x (str): This will define how the timeseries will be grouped by. Has to be an accessor of pd.DatetimeIndex
+        y (str): similar to above for y axis. 
+        plot_diagnostics (bool): If true a figure is plotted showing an overview of the results
+    Returns:
+        np.ndarray: dimensions (k, len(x))
+    """
     from scipy.cluster.vq import whiten, kmeans, vq
 
     df = reshape_timeseries(Load, x=x, y=y, aggfunc='mean')
