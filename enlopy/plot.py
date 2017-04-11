@@ -87,14 +87,10 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
         Plot
 
     """
-    if ax is None: #TODO
+    if ax is None: # Hack for nice jupyter notebook compatibility
         ax=plt.gca()
     a = reshape_timeseries(Load, x=x, y=zz, aggfunc='mean')
     xx = a.columns.values
-
-    #fig = plt.figure(figsize=figsize)
-    #ax = fig.add_subplot(111)
-
 
     # TODO: s 2s 3s instead of percentiles
 
@@ -213,7 +209,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
                             c=iseries.values * 100, cmap=cmap)
 
     axes.ravel()[0].set_title(fig_title)
-    axes.ravel()[-1].spines['bottom'].set_visible(True)  # axes.ravel()[-1] instead of iax?
+    axes.ravel()[-1].spines['bottom'].set_visible(True)
     axes.ravel()[-1].set_xlim(min(x), max(x))
 
 

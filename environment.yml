@@ -1,6 +1,5 @@
 name: enlopy
 dependencies:
-  - python=2.7
   - numpy>=1.10
   - scipy>=0.15
   - matplotlib>=1.5

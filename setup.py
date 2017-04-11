@@ -23,7 +23,8 @@ version = enlopy.__version__
 requirements = ['numpy>=1.10',
                 'scipy>=0.15',
                 'matplotlib>=1.5',
-                'pandas>=0.18']
+                'pandas>=0.18',
+                'future>=0.10']
 
 setup(
     name="enlopy",
@@ -36,6 +37,7 @@ setup(
     version=version,
     install_requires=requirements,
     keywords=['energy','timeseries','statistics','profile','demand'],
+    packages=find_packages(),
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
@@ -59,6 +61,8 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+
         #    distclass=distutils.command.bdist_conda.CondaDistribution,
         #    conda_buildnum=1,
         #    conda_features=['mkl'],

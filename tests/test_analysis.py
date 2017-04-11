@@ -16,6 +16,3 @@ def test_reshape_multiannual():
     b = reshape_timeseries(a, x='dayofyear', y='hour', aggfunc='sum')
     assert b.shape == (24,365)
     assert np.isclose(b.sum().sum(), a.sum())
-
-
-

@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from enlopy import make_timeseries, reshape_timeseries, clean_convert
-from enlopy.utils import _freq_to_sec
+from enlopy.utils import make_timeseries , clean_convert, _freq_to_sec
 
 
 class Test_make_timeseries():
@@ -61,15 +60,6 @@ class Test_make_timeseries():
         b = make_timeseries(a, freq='h')
         assert isinstance(b, pd.Series)
         assert sum(a) == sum(b)
-
-
-
-class Test_reshape_timeseries():
-
-    def test_ndarray_h(self):
-        a = np.random.rand(8760)
-        b = reshape_timeseries(a, x='dayofyear', y='hour')
-        assert b.shape == (24, 365)
 
 
 class Test_clean_convert():

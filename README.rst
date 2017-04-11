@@ -23,7 +23,7 @@ literature.
 
 It consists of four modules that include among others the following:
 
-* ``Analysis``: Overview of descriptive statistics, reshape, load duration curve, climacogram, and other statistics
+* ``Analysis``: Overview of descriptive statistics, reshape, load duration curve, extract daily archetypes (clustering)
 * ``Plot``: 2d heatmap, 3d plot, boxplot, rugplot
 * ``Generate``: generate from daily and monthly profiles, generate from sinusoidal function, sample from given load duration curve, or from given PSD, add noise gaussian and autoregressive noise, genrate correlated load profiles , fit to analytical load duration curve
 * ``Stats``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
@@ -32,7 +32,8 @@ This library is not focusing on regression and prediction (e.g. ARIMA, state-spa
 
 Example
 -------
-Try to run one of the following commands to see
+Try to run one of the following commands to explore some of this library's features:
+
 .. code:: python
 
     >>> import enlopy as el
@@ -45,7 +46,7 @@ Try to run one of the following commands to see
     >>> el.plot_rug(eload) # Plots a nice rugplot. Useful for dispatch results
     >>> el.get_load_archetypes(eload, plot_diagnostics=True) # Splits daily loads in clusters (archetypes)
 
-More examples can be found in `this jupyter notebook <https://github.com/kavvkon/enlopy/blob/master/notebooks/Example.ipynb>`__.
+More examples can be found in `this jupyter notebook <https://github.com/kavvkon/enlopy/blob/master/notebooks/Basic%20examples.ipynb>`__.
 
 Install
 -------
@@ -81,7 +82,7 @@ Contribute
 ----------
 
 If you think you can contribute with new relevant methods that you are
-currently using or improve the code or documentaion in any way, feel free to contact me,
+currently using or improve the code or documentation in any way, feel free to contact me,
 fork the repository and send your pull requests.
 
 Citing

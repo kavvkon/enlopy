@@ -2,6 +2,8 @@
 """
 Methods that generate or adjusted energy related timeseries based on given assumptions/input
 """
+from __future__ import absolute_import, division, print_function
+from future.builtins.iterators import filter, map, zip
 
 import numpy as np
 import pandas as pd
@@ -12,7 +14,9 @@ import scipy.stats
 from .utils import make_timeseries, clean_convert
 from .analysis import countweekend_days_per_month
 
-# TODO: __all__ = []
+__all__ = ['disag_upsample', 'gen_load_from_daily_monthly', 'gen_load_sinus', 'gen_load_from_LDC',
+           'gen_load_from_PSD', 'detect_outliers', 'gen_demand_response', 'add_noise',
+           'gen_corr_arrays', 'gen_analytical_LDC']
 
 _EPS = np.finfo(np.float64).eps
 
@@ -52,6 +56,8 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
         DWL: daily load (working day) (size = 24). Have to be normalized (sum=1)
         DNWL: daily load (non working day) (size = 24) Have to be normalized (sum=1)
         weight: weighting factor between working and non working day (0 - 1)
+    Returns:
+        pd.Series: Generated timeseries
     """
     #TODO: refactor. Can i use disag_upsample() ?
     if not(np.isclose(DWL.sum(),1) and np.isclose(DNWL.sum(),1)):
@@ -110,7 +116,7 @@ def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_
              }
 
     out = 0
-    for period, values in coeffs.iteritems():
+    for period, values in coeffs.items():
         out += sinusFunc(x, period, *values)
 
     return make_timeseries(out)
@@ -126,9 +132,8 @@ def gen_corr_arrays(Na, hours, M):
         Na: number of vectors e.g (3)
         hours: vector size (e.g 8760 hours)
         M: correlation matrix
-
-    Returns one array with random generated corellated variables size :
-    (Na, hours) e.g. (3, 8760)
+    Returns:
+         list: Realization of randomly generated correlated variables. Size : (Na, hours) e.g. (3, 8760)
     """
     if Na != np.size(M, 0):  # rows of pars have to be the same size as rows and cols of M
         Y = -1
@@ -271,7 +276,7 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
         y[0] = mu[0] + noisevector[0] * rndN[0]
 
         for t in mu.T:
-            for i in xrange(len(t)):
+            for i in range(len(t)):
                 y[i] = (mu[i] +
                         r * noisevector[i] /
                         noisevector[i - 1] * (y[i - 1] - mu[i - 1]) +
@@ -299,7 +304,6 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
     return clean_convert(np.squeeze(out))
 
 
-
 def gen_analytical_LDC(U, duration=8760, bins=1000):
     """Generates the Load Duration Curve based on empirical parameters.
         .. math:: f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}
@@ -324,6 +328,7 @@ def gen_analytical_LDC(U, duration=8760, bins=1000):
     ff[x > P] = 0
     return ff/duration, x
 
+
 def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05, shave=False):
     """Simulate a demand response mechanism that makes the load profile less peaky.
     The load profile is analyzed per selected period (currently month month) and the peak hours have their load shifted
@@ -338,14 +343,14 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
         pd.Series: New load profile with reduced peaks. The peak can be shifted to low load hours or shaved
     """
     if not Load.index.is_all_dates:
-        raise ValueError('Need date Time index')
+        print ('Need date Time indexed series. Trying to force one.')
         Load = clean_convert(Load, force_timed_index=True)
     demand = Load
 
     def hours_per_month(demand):
         """Assign to each row hours per month"""
         dic_hours_per_month = demand.groupby(demand.index.month).count().to_dict()
-        return demand.resample('m').transform(lambda x: map(dic_hours_per_month.get, x.index.month))
+        return demand.resample('m').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
 
     total_demand = demand.sum()
 
@@ -380,6 +385,7 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     dem_adj[bool_shift_from] = dem_adj[bool_shift_from] * (1 - percent_shifted)
     dem_adj[~bool_shift_from] = dem_adj[~bool_shift_from] + DR_shift_to
     return dem_adj
+
 
 def detect_outliers(Load, threshold=None, window=5, plot_diagnostics=False):
     """ . Inspired by https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
