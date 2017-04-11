@@ -22,7 +22,10 @@ install:
 - python setup.py develop
 
 script:
- - py.test
+ - coverage run --source enlopy -m py.test
+
+after_success:
+ - coveralls
 
 after_script:
  - source deactivate

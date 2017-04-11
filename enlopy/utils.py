@@ -5,8 +5,7 @@ __all__ = ['make_timeseries', 'clean_convert']
 
 
 def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
-    """Convert numpy array to a pandas series with a timed index. Convenience wrapper around a
-     datetime-indexed pd.DataFrame.
+    """Convert numpy array to a pandas series with a timed index. Convenience wrapper around a datetime-indexed pd.DataFrame.
     
     Parameters:
         x: (nd.array) raw data to wrap into a pd.Series

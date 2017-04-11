@@ -12,8 +12,8 @@ def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
     
     Arguments:
         Load: 1D pandas with timed index
-        x: Parameter for reshape_timeseries()
-        y: Parameter for reshape_timeseries()
+        x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
+        y: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         bins: Number of bins for colormap
         palette: palette name (from colorbrewer, matplotlib etc.)
         **pltargs: Exposes matplotlib.plot arguments
@@ -36,16 +36,16 @@ def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
 
 def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
            palette='Oranges', colorbar=True, **pltargs):
-    """ Returns a 30 plot of the reshaped timeseries based on x, y
+    """ Returns a 3D plot of the reshaped timeseries based on x, y
     
     Arguments:
         Load: 1D pandas with timed index
-        x: Parameter for reshape_timeseries()
-        y: Parameter for reshape_timeseries()
+        x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
+        y: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         bins: Number of bins for colormap
         palette: palette name (from colorbrewer, matplotlib etc.)
-        **pltargs: Exposes matplotlib.plot arguments
-    Returns
+        **pltargs: Exposes :meth:`matplotlib.pyplot.surface` arguments
+    Returns:
         3d plot
     """
     import mpl_toolkits.mplot3d  # necessary for orojection=3d
@@ -57,7 +57,7 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
     cmap_obj = cm.get_cmap(palette, bins)
     X, Y = np.meshgrid(range(len(x_y.columns)), range(len(x_y.index)))
     surf = ax.plot_surface(X, Y, x_y, cmap=cmap_obj, rstride=1, cstride=1,
-                           shade=False, antialiased=True, lw=0)
+                           shade=False, antialiased=True, lw=0, **pltargs)
     if colorbar:
         fig.colorbar(surf)
     # Set viewpoint.
@@ -75,10 +75,10 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
     
     Arguments:
         Load: 1D pandas with timed index
-        x (str): x axis aggregator. See reshape_timeseries()
+        x (str): x axis aggregator. See :meth:`enlopy.analysis.reshape_timeseries`
         y (str): similar to above for y axis
         perc_list(list): List of percentiles to plot. If it is an integer then it will be plotted as a line. If it is list it has to contain two items and it will be plotted using fill_between()
-        **kwargs: exposes arguments of plt.fill_between()
+        **kwargs: exposes arguments of :meth:`matplotlib.pyplot.fill_between`
     Returns:
         Plot
 
@@ -111,9 +111,9 @@ def plot_boxplot(Load, by='day', **pltargs):
     """Return boxplot plot for each day of the week
     
     Arguments:
-        Load : 1D pandas Series with timed index
-        by: make plot by day or hour
-        **pltargs: Exposes matplotlib.plot arguments
+        Load (pd.Series): 1D pandas Series with timed index
+        by (str): group results by 'day' or 'hour'
+        **pltargs (dict): Exposes :meth:`matplotlib.pyplot.plot` arguments
     Returns:
         plot
     """
@@ -143,7 +143,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
         color (str): color of line
-        kwargs (dict): exposes arguments of get_LDC()
+        kwargs (dict): exposes arguments of :meth:`enlopy.analysis.get_LDC`
     Returns:
         Load duration curve plot
     """
@@ -168,10 +168,10 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
     """Create multiaxis rug plot from pandas Dataframe
     
     Arguments:
-        df_series: 2D pandas with timed index
-        on_off: if True all points that are above 0 will be plotted as one color. 
-        If False all values will be colored based on their value.
-        cmap: palette name (from colorbrewer, matplotlib etc.)
+        df_series (pd.DataFrame): 2D pandas with timed index
+        on_off (bool): if True all points that are above 0 will be plotted as one color. If False all values will be colored based on their value.
+        cmap (str): palette name (from colorbrewer, matplotlib etc.)
+        fig_title (str): Figure title
     Returns:
         plot
     """

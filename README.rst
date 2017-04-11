@@ -1,7 +1,7 @@
 Python toolkit for energy load time series
 ==========================================
 
-|pyversion| |license| |version status| |build status|
+|pyversion| |license| |version status| |build status| |docs|
 
 ``enlopy`` is an open source python library with methods to generate,
 process, analyze, and plot energy related timeseries.
@@ -36,8 +36,9 @@ Try to run one of the following commands to explore some of this library's featu
 
 .. code:: python
 
+    >>> import numpy as np
     >>> import enlopy as el
-    >>> Load = np.random.rand(8760)
+    >>> Load = np.random.rand(8760) # Create random vector of values
     >>> eload = el.make_timeseries(Load) # Convenience wrapper around pandas timeseries
 
     >>> el.plot_heatmap(eload, x='day', y='month', aggfunc='mean') # Plots 2d heatmap
@@ -47,6 +48,10 @@ Try to run one of the following commands to explore some of this library's featu
     >>> el.get_load_archetypes(eload, plot_diagnostics=True) # Splits daily loads in clusters (archetypes)
 
 More examples can be found in `this jupyter notebook <https://github.com/kavvkon/enlopy/blob/master/notebooks/Basic%20examples.ipynb>`__.
+
+Documentation
+-------------
+Detailed documentation is still under construction, but you can find an overview of the available methods here: http://enlopy.readthedocs.io/
 
 Install
 -------
@@ -88,9 +93,9 @@ fork the repository and send your pull requests.
 Citing
 ------
 
-If you use it in an academic work, Please consider citing it.
+If you use it in an academic work, please consider citing it.
 
-[1]. K. Kavvadias, “enlopy: Python toolkit for energy load time series”
+[1] K. Kavvadias, “enlopy: Python toolkit for energy load time series”
 
 ``enlopy`` has been already used for processing demand timeseries in this scientific paper:
 http://dx.doi.org/10.1016/j.apenergy.2016.08.077
@@ -105,3 +110,7 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
    :target: https://pypi.python.org/pypi/enlopy
 .. |build status| image:: http://img.shields.io/travis/kavvkon/enlopy/master.svg?style=flat
    :target: https://travis-ci.org/kavvkon/enlopy
+.. |docs| image:: https://readthedocs.org/projects/pip/badge/
+    :alt: Documentation
+    :target: http://enlopy.readthedocs.io/en/latest/
+

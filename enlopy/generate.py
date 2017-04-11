@@ -21,7 +21,7 @@ _EPS = np.finfo(np.float64).eps
 
 def disag_upsample(Load, disag_profile, to_offset='h'):
     """ Upsample given timeseries, disaggregating based on given load profiles.
-    e.g. From daily to hourly. The load of each day is distributed according to the disaggregataion profile. The sum of each day remains the same.
+    e.g. From daily to hourly. The load of each day is distributed according to the disaggregation profile. The sum of each day remains the same.
     
     Arguments:
         Load (pd.Series): Load profile to disaggregate
@@ -47,9 +47,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
 
 def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
     """Generate annual timeseries using monthly demand and daily profiles.
-    Working days are followed by non-working days which produces loads with
-    unrealistic temporal sequence, which means that they cannot be treated as
-    timeseries.
+    Working days and weekends are built from different profiles having different weighting factors.
 
     Arguments:
         ML: monthly load (size = 12)
@@ -89,8 +87,8 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
 
 
 def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_2):
-    """Generate sinusoidal load with daily, weekly and yearly seasonality. Each term is estimated based on the following expression:
-     :math:`f(x;A1,A2,w) =  A1 \\cos(2 \\pi/w \\cdot x) + A2 \\sin(2 \\pi/w \\cdot x)`
+    """ Generate sinusoidal load with daily, weekly and yearly seasonality. Each term is estimated based
+    on the following expression: :math:`f(x;A1,A2,w) =  A1 \\cos(2 \\pi/w \\cdot x) + A2 \\sin(2 \\pi/w \\cdot x)`
 
     Arguments:
         daily_1 (float): cosine coefficient for daily component (period 24)
@@ -119,7 +117,7 @@ def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_
     return make_timeseries(out)
 
 
-def gen_corr_arrays(Na, hours, M):
+def gen_corr_arrays(Na, hours, M): #TODO: testing
     """ Generating correlated normal variates.
     Assume one wants to create a vector of random variates Z which is
     distributed according to Z~N(μ,Σ) where μ is the vector of means,
@@ -168,19 +166,23 @@ def gen_corr_arrays(Na, hours, M):
 
 
 def gen_load_from_LDC(LDC, Y=None, N=8760):
-    """ Generate loads based on a Inverse CDF, such as a Load Duration Curve
+    """ Generate loads based on a Inverse CDF, such as a Load Duration Curve (LDC)
     Inverse transform sampling: Compute the value x such that F(x) = u.
     Take x to be the random number drawn from the distribution described by F.
     
+    .. note::
+        Due to the sampling process this function produces load profiles with unrealistic temporal sequence, which means that they cannot be treated as
+        timeseries. It is recommended that :meth:`gen_load_from_PSD` is used afterwards.
+    
     Arguments:
         LDC (np.ndarray): Load duration curve (2 x N) vector of the x, y coordinates of an LDC function (results of (get_LDC).
-            x coordinates have to be normalized (max = 1 ==> 8760hrs )
+            x coordinates have to be normalized (max: 1 => 8760hrs )
         Y (nd.array): a vector of random numbers. To be used for correlated loads.
-        If None is supplied a random vector (8760) will be created.
+            If None is supplied a random vector (8760) will be created.
         N (int): Length of produced timeseries (if Y is not provided)
 
     Returns:
-         np.ndarray: a vector with the same size as Y that follows the LDC distribution
+         np.ndarray: vector with the same size as Y that respects the statistical distribution of the LDC
     """
     # func_inv = scipy.interpolate.interp1d(LDC[0], a[1])
     # simulated_loads = func_inv(Y)
@@ -268,7 +270,6 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
             r:  Autoregressive coefficient AR(1). Has to be between  [-1,1]
         Returns:
             pd.Series,pd.DataFrame: a realization of the timeseries
-
         """
         mu = np.atleast_2d(mu)
         loadlength = mu.shape
@@ -312,9 +313,9 @@ def gen_analytical_LDC(U, duration=8760, bins=1000):
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
     
     Arguments:
-        U(dict): parameter vector [Peak load, capacity factor%, base load%, hours]
+        U (dict): parameter vector [Peak load, capacity factor%, base load%, hours]
     Returns:
-        (np.array) a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
+        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
     """
     if isinstance(U,dict):
         P = U['peak']  # peak load
