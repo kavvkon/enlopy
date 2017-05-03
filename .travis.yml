@@ -1,7 +1,7 @@
 language: python
 python:
 - '2.7'
-- '3.5'
+- '3.6'
 before_install:
 - sudo apt-get update
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -19,6 +19,7 @@ before_install:
 install:
 - conda env create -q -f environment.yml
 - source activate enlopy
+- pip install coveralls
 - python setup.py develop
 
 script:

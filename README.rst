@@ -1,7 +1,7 @@
 Python toolkit for energy load time series
 ==========================================
 
-|pyversion| |license| |version status| |build status| |docs|
+|pyversion| |license| |version_status| |build_status| |docs|
 
 ``enlopy`` is an open source python library with methods to generate,
 process, analyze, and plot energy related timeseries.
@@ -26,7 +26,7 @@ It consists of four modules that include among others the following:
 * ``Analysis``: Overview of descriptive statistics, reshape, load duration curve, extract daily archetypes (clustering)
 * ``Plot``: 2d heatmap, 3d plot, boxplot, rugplot
 * ``Generate``: generate from daily and monthly profiles, generate from sinusoidal function, sample from given load duration curve, or from given PSD, add noise gaussian and autoregressive noise, genrate correlated load profiles , fit to analytical load duration curve
-* ``Statisics``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
+* ``Statistics``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
 
 This library is not focusing on regression and prediction (e.g. ARIMA, state-space etc.), since there are numerous relevant libraries around.
 
@@ -93,7 +93,7 @@ fork the repository and send your pull requests.
 Citing
 ------
 
-If you use it in an academic work, please consider citing it.
+If you use this library in an academic work, please consider citing it.
 
 [1] K. Kavvadias, “enlopy: Python toolkit for energy load time series”
 
@@ -106,9 +106,9 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
 .. |license| image:: https://img.shields.io/pypi/l/enlopy.svg
     :alt: BSD License
     :target: https://opensource.org/licenses/BSD-3-Clause
-.. |version status| image:: http://img.shields.io/pypi/v/enlopy.svg?style=flat
+.. |version_status| image:: http://img.shields.io/pypi/v/enlopy.svg?style=flat
    :target: https://pypi.python.org/pypi/enlopy
-.. |build status| image:: http://img.shields.io/travis/kavvkon/enlopy/master.svg?style=flat
+.. |build_status| image:: http://img.shields.io/travis/kavvkon/enlopy/master.svg?style=flat
    :target: https://travis-ci.org/kavvkon/enlopy
 .. |docs| image:: https://readthedocs.org/projects/pip/badge/
     :alt: Documentation

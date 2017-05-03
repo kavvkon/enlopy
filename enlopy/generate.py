@@ -25,7 +25,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     
     Arguments:
         Load (pd.Series): Load profile to disaggregate
-        disag_profile (pd.Series): disaggregation profile to be used on each timestep of the load
+        disag_profile (pd.Series, np.ndarray): disaggregation profile to be used on each timestep of the load
         to_offset (str): Resolution of upsampling. has to be a valid pandas offset alias. (check `here <http://pandas.pydata.org/pandas-docs/stable/timeseries.html#offset-aliases>`__ for all available offsets)
     Returns:
         pd.Series: the upsampled timeseries
@@ -58,7 +58,7 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
         pd.Series: Generated timeseries
     """
     #TODO: refactor. Can i use disag_upsample() ?
-    if not(np.isclose(DWL.sum(),1) and np.isclose(DNWL.sum(),1)):
+    if not(np.isclose(DWL.sum(), 1) and np.isclose(DNWL.sum(), 1)):
         print ('Daily profiles should be normalized')
         #TODO: Normalize here?
         return
@@ -117,7 +117,7 @@ def gen_load_sinus(daily_1, daily_2, monthly_1, monthly_2, annually_1, annually_
     return make_timeseries(out)
 
 
-def gen_corr_arrays(Na, hours, M): #TODO: testing
+def gen_corr_arrays(Na, length, M, to_uniform=True):
     """ Generating correlated normal variates.
     Assume one wants to create a vector of random variates Z which is
     distributed according to Z~N(μ,Σ) where μ is the vector of means,
@@ -125,21 +125,21 @@ def gen_corr_arrays(Na, hours, M): #TODO: testing
     http://comisef.wikidot.com/tutorial:correlateduniformvariates
     
     Arguments:
-        Na: number of vectors e.g (3)
-        hours: vector size (e.g 8760 hours)
-        M: correlation matrix
+        Na (int): number of vectors e.g (3)
+        length (int): generated vector size (e.g 8760)
+        M (np.ndarray): correlation matrix. Should be of size Na x Na
+        to_uniform (bool): True if the correlation matrix needs to be adjusted for uniforms
     Returns:
-         list: Realization of randomly generated correlated variables. Size : (Na, hours) e.g. (3, 8760)
+         np.ndarray: Realization of randomly generated correlated variables. Size : (Na, length) e.g. (3, 8760)
     """
     if Na != np.size(M, 0):  # rows of pars have to be the same size as rows and cols of M
-        Y = -1
         print('Parameters and corr matrix dimensions do not agree.')
-        pass
+        return False
 
     newM = M.copy()  # changing an array element without copying it changes it globally!
-    u = np.random.randn(hours, Na)
+    u = np.random.randn(length, Na)
     if min(np.linalg.eig(M)[0]) < 0:  # is M positive definite?
-        print ('Error: Eigenvector is not positive')
+        print ('Error: Eigenvector is not positive. Trying to make positive, but it may differ from the initial.')
         # Make M positive definite:
         la, v = np.linalg.eig(newM)
         la[la < 0] = np.spacing(1)  # Make all negative eigenvalues zero
@@ -147,17 +147,16 @@ def gen_corr_arrays(Na, hours, M): #TODO: testing
         newM = np.dot(np.dot(v, ladiag), v.T)  # Estimate new M = v * L * v'
 
     # Transformation is needed to change normal to uniform (Spearman - Pearson)
-    for i in np.arange(0, Na):  # 1:Na
-        for j in np.arange(max(Na-1, i), Na):  # max(Na-1,i):Na
-            if i != j:
-                newM[i, j] = 2 * np.sin(np.pi * newM[i, j] / 6)
-                newM[j, i] = 2 * np.sin(np.pi * newM[j, i] / 6)
+    if to_uniform:
+        for i in np.arange(0, Na):  # 1:Na
+            for j in np.arange(max(Na-1, i), Na):  # max(Na-1,i):Na
+                if i != j:
+                    newM[i, j] = 2 * np.sin(np.pi * newM[i, j] / 6)
+                    newM[j, i] = 2 * np.sin(np.pi * newM[j, i] / 6)
 
-    if min(np.linalg.eig(newM)[0]) <= 0:  # check again brute force #while
-        print ('Error: Eigenvector is not positive')
-        pass
-        # M[1:(Na+1):(Na*Na)] = 1
-        # M = hyper_decomp(M)
+    if min(np.linalg.eig(newM)[0]) <= 0:
+        print ('Error: Eigenvector is still not positive. Aborting')
+        return False
 
     cF = scipy.linalg.cholesky(newM)
     Y = np.dot(u, cF).T
@@ -184,15 +183,15 @@ def gen_load_from_LDC(LDC, Y=None, N=8760):
     Returns:
          np.ndarray: vector with the same size as Y that respects the statistical distribution of the LDC
     """
-    # func_inv = scipy.interpolate.interp1d(LDC[0], a[1])
-    # simulated_loads = func_inv(Y)
-    # ------- Faster way:   # np.interp is faster but have to sort LDC
     if Y is None:  # if there is no Y, generate a random vector
         Y = np.random.rand(N)
+    func_inv = scipy.interpolate.interp1d(LDC[0], LDC[1], bounds_error=False, fill_value=0)
+    simulated_loads = func_inv(Y)
+    # ------- Faster way:   # np.interp is faster but have to sort LDC
     # if np.all(np.diff(LDC[0]) > 0) == False: #if sorted
-    idx = np.argsort(LDC[0])
-    LDC_sorted = LDC[:, idx].copy()
-    simulated_loads = np.interp(Y, LDC_sorted[0], LDC_sorted[1])
+    #idx = np.argsort(LDC[0])
+    #LDC_sorted = LDC[:, idx].copy()
+    #simulated_loads = np.interp(Y, LDC_sorted[0], LDC_sorted[1])
     # no need to insert timed index since there is no spectral information
     return simulated_loads
 
@@ -313,11 +312,11 @@ def gen_analytical_LDC(U, duration=8760, bins=1000):
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
     
     Arguments:
-        U (dict): parameter vector [Peak load, capacity factor%, base load%, hours]
+        U (tuple): parameter vector [Peak load, capacity factor%, base load%, hours] or dict
     Returns:
         np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
     """
-    if isinstance(U,dict):
+    if isinstance(U, dict):
         P = U['peak']  # peak load
         CF = U['LF']  # load factor
         BF = U['base']  # base load

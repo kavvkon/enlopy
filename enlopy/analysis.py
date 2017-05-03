@@ -1,7 +1,8 @@
+from __future__ import division
 import numpy as np
 import pandas as pd
 
-from .utils import clean_convert, _freq_to_sec
+from .utils import clean_convert
 
 __all__ = ['reshape_timeseries', 'get_LDC', 'get_load_archetypes', 'get_load_stats']
 
@@ -10,7 +11,7 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
     timeslices. e.g. time of day vs day of year
 
     Parameters:
-        Load (pd.Series): timeseries
+        Load (pd.Series, np.ndarray): timeseries
         x (str): x axis aggregator. Has to be an accessor of pd.DatetimeIndex
          (year, dayoftime, week etc.)
         y (str): similar to above for y axis
@@ -35,30 +36,38 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
                          aggfunc=aggfunc).T
 
 
-def get_LDC(Load, x_norm=True, y_norm=False, bins=999, trunc_0=False):
+def get_LDC(Load, x_norm=True, y_norm=False):
     """Generates the Load Duration Curve based on a given load
     
     Arguments:
         Load (pd.Series): timeseries
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
-        bins (int): how many values to plot
-        trunc_0 (bool): If true remove all values under zero
     Returns:
-        np.ndarray: array [x, y] ready for plotting (e.g. plt(\*LDC_load(load)))
+        np.ndarray: tuple (x, y) ready for plotting (e.g. plt(\*LDC_load(load)))
     """
+    Load1 = clean_convert(Load)
+    if Load1.ndim >= 2:
+        raise NotImplementedError('Not Implemented yet for 2d')
+    y = Load1.sort_values(ascending=False).values
+    x = np.arange(1, len(y) + 1 )
+    if x_norm:
+        x = x / len(x)
+    if y_norm:
+        y = y / y.max()
+    return x, y
 
     # remove nan because histogram does not work
-    load_masked = Load[~np.isnan(Load)]
-    n, xbins = np.histogram(load_masked, bins=bins, density=True)
+    #load_masked = Load[~np.isnan(Load)]
+    #n, xbins = np.histogram(load_masked, bins=bins, density=True)
     # xbins = xbins[:-1] #remove last element to make equal size
-    cum_values = np.zeros(xbins.shape)
-    cum_values[1:] = np.cumsum(n*np.diff(xbins))
-    out = np.array([1-cum_values, xbins])
+    #cum_values = np.zeros(xbins.shape)
+    #cum_values[1:] = np.cumsum(n*np.diff(xbins))
+    #out = np.array([1-cum_values, xbins])
     # out = np._r[[1 0], out] # Add extra point
-    if trunc_0: # Trunc non zero elements
-        out[out < 0] = 0
-    return out
+    #if trunc_0: # Trunc non zero elements
+    #    out[out < 0] = 0
+    #return out
 
 
 def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=False):
@@ -106,7 +115,7 @@ def get_load_stats(Load, per='a'):
     
     
     Arguments:
-        load: timeseries of load to be examined
+        Load: timeseries of load to be examined
         per: reporting periods. Annual by default. Based on pandas time offsets 
     Returns:
          dict: Parameter dictionary

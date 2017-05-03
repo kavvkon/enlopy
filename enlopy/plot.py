@@ -70,13 +70,13 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
     ax.set_ylabel(y)
 
 
-def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50], ax=None, figsize=(10, 5),color='blue', **kwargs):
+def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50], ax=None, color='blue', **kwargs):
     """Plot predefined percentiles per timestep
     
     Arguments:
         Load: 1D pandas with timed index
         x (str): x axis aggregator. See :meth:`enlopy.analysis.reshape_timeseries`
-        y (str): similar to above for y axis
+        zz (str): similar to above for y axis
         perc_list(list): List of percentiles to plot. If it is an integer then it will be plotted as a line. If it is list it has to contain two items and it will be plotted using fill_between()
         **kwargs: exposes arguments of :meth:`matplotlib.pyplot.fill_between`
     Returns:
@@ -98,7 +98,7 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
             perc0 = a.apply(lambda x: np.nanpercentile(x.values, i[0]), axis=0)
             perc1 = a.apply(lambda x: np.nanpercentile(x.values, i[1]), axis=0)
 
-            ax.fill_between(xx, perc0, perc1, lw=.5, alpha=.3,color=color, **kwargs)
+            ax.fill_between(xx, perc0, perc1, lw=.5, alpha=.3, color=color, **kwargs)
         else:
             raise ValueError('List items should be scalars or 2-item lists')
 
@@ -139,7 +139,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
     """Plot Load duration curve
     
     Arguments:
-        Load (bool): 1D pandas Series with timed index
+        Load (pd.Series): 1D pandas Series with timed index
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
         color (str): color of line
@@ -147,7 +147,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
     Returns:
         Load duration curve plot
     """
-    a = get_LDC(Load, x_norm=x_norm, y_norm=y_norm,  **kwargs)
+    a = get_LDC(Load, x_norm=x_norm, y_norm=y_norm, **kwargs)
     #TODO: make it work with 2d
     plt.plot(*a, color=color)
     if x_norm:

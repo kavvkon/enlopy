@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from enlopy.utils import make_timeseries
 from enlopy.generate import (add_noise, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
-                            disag_upsample, clean_convert, countweekend_days_per_month)
+                             disag_upsample, clean_convert, countweekend_days_per_month,
+                             gen_analytical_LDC, gen_load_from_LDC, gen_corr_arrays)
 
 class Test_noise():
 
@@ -81,8 +82,6 @@ class Test_disag():
         assert len(y_disag) == 8760*60
 
 
-
-
 class Test_demand_side_management():
 
     def test_load_shifting_small(self):
@@ -103,3 +102,38 @@ def test_countweekend_days_per_month():
     b = countweekend_days_per_month(a.resample('d').mean())
     assert len(b) == 12
     assert sum(b) == 104 #weekend days in 2015
+
+def test_gen_analytical_LDC():
+    #Generate a simple LDC with Peak of 1
+    U = (1, 0.5, 0.2, 8760)
+    LDC = gen_analytical_LDC(U)
+
+    assert max(LDC[0]) == 1.0
+    assert min(LDC[0]) == 0.0
+    assert np.isclose(np.mean(LDC[0]), 0.5)
+
+
+def test_gen_load_from_LDC():
+    # Only operate 90% of the time.
+    duration_fraction = 0.9
+    LDC = gen_analytical_LDC((1, 0.5, 0.2, 8760 * duration_fraction))
+    b = gen_load_from_LDC(LDC)
+    assert b.max() <= 1.0
+
+    # According to the defined formula anything below should be zero
+    val_perc = np.percentile(b, (1 - duration_fraction - 0.01) * 100)
+    assert np.isclose(val_perc, 0.0)
+
+
+def test_gen_corr_arrays():
+    Na = 2
+    length = 1000
+    r = 0.85
+    tol = 0.01
+    M = np.array([[1, r],
+                  [r, 1]])
+    A = gen_corr_arrays(Na, length, M)
+    new_r = np.corrcoef(A)[0][1]
+    assert A.shape == (Na, length)
+    #allow some tolerance of convergence..
+    assert np.abs(new_r - r) <= 0.02
