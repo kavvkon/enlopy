@@ -22,7 +22,7 @@ version = enlopy.__version__
 
 requirements = ['numpy>=1.10',
                 'scipy>=0.15',
-                'matplotlib>=1.5',
+                'matplotlib>=1.5.1',
                 'pandas>=0.18']
 
 setup(
@@ -61,6 +61,7 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
 
         #    distclass=distutils.command.bdist_conda.CondaDistribution,
         #    conda_buildnum=1,

@@ -87,11 +87,11 @@ all_stats_desc = {'Sum': np.sum,
                   'Max': np.max,
                   'Load Factor (peakiness)': get_lf,
                   'Total Zero load duration': partial(get_dur_val, a=0),
-                  'Biggest duration of consecitive zero load': lambda x: np.max(get_rle(x, a=0)),
+                  'Biggest duration of consecutive zero load': lambda x: np.max(get_rle(x, a=0)),
                   'Ramps (98%)': partial(get_ramp_rates, a=98),
                   'Min (2%)': partial(get_percentile, a=0.02, trunced=False),
                   'Periodicity': lambda x: get_highest_periodicity(x)[0:2],
-                  'Trend':get_trend,
-                  'Load ratio (max/min)':get_load_ratio
+                  'Trend': get_trend,
+                  'Load ratio (max/min)': get_load_ratio
                   }
 #to add more...

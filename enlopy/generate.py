@@ -25,7 +25,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     
     Arguments:
         Load (pd.Series): Load profile to disaggregate
-        disag_profile (pd.Series, np.ndarray): disaggregation profile to be used on each timestep of the load
+        disag_profile (pd.Series, np.ndarray): disaggregation profile to be used on each timestep of the load. Has to be compatible with selected offset.
         to_offset (str): Resolution of upsampling. has to be a valid pandas offset alias. (check `here <http://pandas.pydata.org/pandas-docs/stable/timeseries.html#offset-aliases>`__ for all available offsets)
     Returns:
         pd.Series: the upsampled timeseries
@@ -34,7 +34,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     orig_freq = Load.index.freqstr
     start = Load.index[0]
     end = Load.index[-1] + 1 #An extra period is needed at the end to match the sum FIXME
-    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset))
+    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, closed='left'))
 
     def mult_profile(x, profile):
         #Normalizing to keep the sum the same..
