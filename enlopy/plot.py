@@ -1,5 +1,8 @@
+from __future__ import division
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.colors as col
+
 import numpy as np
 
 from .analysis import reshape_timeseries, clean_convert, get_LDC
@@ -164,7 +167,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
         plt.ylabel('Power')
 
 
-def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
+def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=False):
     """Create multiaxis rug plot from pandas Dataframe
     
     Arguments:
@@ -172,6 +175,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
         on_off (bool): if True all points that are above 0 will be plotted as one color. If False all values will be colored based on their value.
         cmap (str): palette name (from colorbrewer, matplotlib etc.)
         fig_title (str): Figure title
+        normalized (bool): if True, all series colormaps will be normalized based on the maximum value of the dataframe
     Returns:
         plot
     """
@@ -201,13 +205,18 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
     else:
         raise ValueError("Has to be either Series or Dataframe")
 
+    max_frame_value = np.nanmax(df_series.values)
+    cm_obj = cm.get_cmap(cmap)
+
     fig, axes = plt.subplots(nrows=rows, ncols=1, sharex=True,
                              figsize=(16, 0.25 * rows), squeeze=False,
                              frameon=False, gridspec_kw={'hspace': 0.15})
 
     for (item, iseries), iax in zip(df_series.iteritems(), axes.ravel()):
         format_axis(iax)
-        iax.set_ylabel(item, rotation=0)
+        iax.set_ylabel(str(item)[:30], rotation='horizontal',
+                       rotation_mode='anchor',
+                       horizontalalignment='right', x=-0.01)
         if iseries.sum() > 0:
             if on_off:
                 i_on_off = iseries.apply(flag_operation).replace(False, np.nan)
@@ -215,12 +224,20 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title=''):
             else:
                 x = iseries.index
                 y = np.ones(len(iseries))
+                #Define (truncated) colormap:
+                if normalized:
+                    max_color = np.nanmax(iseries.values) / max_frame_value
+                    cmTmp = cm_obj(np.linspace(0, max_color, 50))
+                    i_cmap = col.ListedColormap(cmTmp)
+                else:
+                    i_cmap = cmap
+
                 iax.scatter(x, y, marker='|', s=100,
-                            c=iseries.values * 100, cmap=cmap)
+                            c=iseries.values, cmap=i_cmap)
 
     axes.ravel()[0].set_title(fig_title)
     axes.ravel()[-1].spines['bottom'].set_visible(True)
-    axes.ravel()[-1].set_xlim(min(x), max(x))
+    axes.ravel()[-1].set_xlim(np.min(x), np.max(x))
 
 
 def plot_line_holidays():
