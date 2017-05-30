@@ -37,7 +37,8 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
 
 
 def get_LDC(Load, x_norm=True, y_norm=False):
-    """Generates the Load Duration Curve based on a given load
+    """Generates the Load Duration Curve based on a given load. For 2-dimensional dataframes the x-axis sorting
+     is done based on sum of all series. Sorting on the y-axis is done based on the coefficient of variance.
     
     Arguments:
         Load (pd.Series): timeseries
@@ -48,8 +49,13 @@ def get_LDC(Load, x_norm=True, y_norm=False):
     """
     Load1 = clean_convert(Load)
     if Load1.ndim >= 2:
-        raise NotImplementedError('Not Implemented yet for 2d')
-    y = Load1.sort_values(ascending=False).values
+        # Sort x axis by total value
+        sorted_ind = Load1.sum(axis=1).sort_values(ascending=False).index
+        # Sort series by variance coefficient. Baseline load should have smaller CV and should go lower
+        sorted_cols = (Load1.std()/Load1.mean()).sort_values().index
+        y = Load1.loc[sorted_ind, sorted_cols].values
+    else:
+        y = Load1.sort_values(ascending=False).values
     x = np.arange(1, len(y) + 1 )
     if x_norm:
         x = x / len(x)
@@ -122,9 +128,9 @@ def get_load_stats(Load, per='a'):
     """
      #TODO 2D
     from .stats import all_stats_desc
-    g = Load.groupby(pd.TimeGrouper(per))
+    g = Load.groupby(pd.Grouper(freq=per))
     if len(g) > 100:
-        print ('Waning: {} periods selected'.format(len(g)))
+        print ('Warning: {} periods selected'.format(len(g)))
     p_dict = {}
     for period, load_per in g:
         ind = str(period.to_period())

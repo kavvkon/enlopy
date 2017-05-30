@@ -24,3 +24,11 @@ def test_get_LDC():
     assert np.isclose(b[1].sum(), a.sum())
     #check monotonicity
     assert np.all(np.diff(b[1]) < 0)
+
+def test_get_LDC_2d():
+    a = np.random.rand(8760, 4)
+    a = make_timeseries(a, freq='h')
+    b = get_LDC(a)
+    assert np.isclose(np.nansum(b[1]), np.nansum(a))
+    # check monotonicity
+    assert np.all(np.diff(b[1].sum(1)) < 0)

@@ -2,6 +2,7 @@ from __future__ import division
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as col
+import pandas as pd
 
 import numpy as np
 
@@ -138,32 +139,38 @@ def plot_boxplot(Load, by='day', **pltargs):
     # TODO Is it really needed? pd.boxplot()
 
 
-def plot_LDC(Load, x_norm=True, y_norm=False, color='black', **kwargs):
+def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Set3', color='black', **kwargs):
     """Plot Load duration curve
     
     Arguments:
         Load (pd.Series): 1D pandas Series with timed index
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
-        color (str): color of line
+        color (str): color of line. For Series only (1D)
+        cmap (str): Colormap of area. For Dataframes only (2D)
         kwargs (dict): exposes arguments of :meth:`enlopy.analysis.get_LDC`
     Returns:
         Load duration curve plot
     """
-    a = get_LDC(Load, x_norm=x_norm, y_norm=y_norm, **kwargs)
-    #TODO: make it work with 2d
-    plt.plot(*a, color=color)
+    x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm, **kwargs)
+    if y.ndim >= 2:
+        #plt.stackplot(x, y.T, cmap=cmap, **kwargs)
+        # Reconverting to Dataframe as pd.plot.area is much more robust than plt.stackplot
+        ldc_frame = pd.DataFrame(y, index=x)
+        ldc_frame.plot.area(cmap=cmap, lw=0, legend=False, **kwargs)
+    else:
+        plt.plot(x, y, color=color)
     if x_norm:
         plt.xlim(0, 1)
         plt.xlabel('Normalized duration')
     else:
-        plt.xlim(0, len(Load))
+        plt.xlim(0, len(y))
         plt.xlabel('Duration')
     if y_norm:
         plt.ylim(0,1)
         plt.ylabel('Normalized Power')
     else:
-        plt.ylim(0, max(Load))
+        plt.ylim(0, np.nanmax(y))
         plt.ylabel('Power')
 
 
