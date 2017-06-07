@@ -39,7 +39,7 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
 def get_LDC(Load, x_norm=True, y_norm=False):
     """Generates the Load Duration Curve based on a given load. For 2-dimensional dataframes the x-axis sorting
      is done based on sum of all series. Sorting on the y-axis is done based on the coefficient of variance.
-    
+
     Arguments:
         Load (pd.Series): timeseries
         x_norm (bool): Normalize x axis (0,1)
@@ -81,7 +81,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
     For the default values daily archetypes will be extracted.
     
     Parameters:
-        Load (pd.Series): timeseries 
+        Load (pd.Series): timeseries
         k (int): number of archetypes to identify and extract
         x (str): This will define how the timeseries will be grouped by. Has to be an accessor of pd.DatetimeIndex
         y (str): similar to above for y axis. 
@@ -93,7 +93,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
 
     df = reshape_timeseries(Load, x=x, y=y, aggfunc='mean')
     df_white = whiten(df.astype(float))
-    clusters_center, dist = kmeans(df_white, k)
+    clusters_center, __ = kmeans(df_white, k)
 
     if plot_diagnostics:
         try:
@@ -118,11 +118,10 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
 
 def get_load_stats(Load, per='a'):
     """Find load profile characteristics. Among other it estimates: peak, load factor, base load factor, operating hours,
-    
-    
+
     Arguments:
         Load: timeseries of load to be examined
-        per: reporting periods. Annual by default. Based on pandas time offsets 
+        per: reporting periods. Annual by default. Based on pandas time offsets
     Returns:
          dict: Parameter dictionary
     """
@@ -152,8 +151,7 @@ def countweekend_days_per_month(df, weekdays=True):     #TODO generalize count_x
     """Count number of occurrences where the day is Saturday or Sunday. Loops per month"""
     from collections import Counter
     out = []
-    for month, values in df.index.groupby(df.index.month).items():
+    for __, values in df.index.groupby(df.index.month).items():
         m_count = Counter([day.weekday() for day in values])
         out.append(m_count[5] + m_count[6]) # 5,6 is saturday sunday
     return out
-    #TODO fix to daily

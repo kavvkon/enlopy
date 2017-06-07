@@ -51,7 +51,6 @@ class Test_make_timeseries():
         assert type(b) == pd.Series and len(b)==0
 
     def test_empty_frame_to_indexed_empty(self):
-        a = np.array([])
         b = make_timeseries(freq='H', length=8760)
         assert isinstance(b, pd.Series) and len(b) == 8760
 
@@ -67,27 +66,27 @@ class Test_clean_convert():
     def test_ndarray_to_series_indexed(self):
         a = np.random.rand(8760)
         b = clean_convert(a, force_timed_index=True, always_df=False)
-        assert type(b) == pd.Series and b.index.is_all_dates
+        assert isinstance(b, pd.Series) and b.index.is_all_dates
 
     def test_ndarray_to_df_indexed(self):
         a = np.random.rand(8760)
         b = clean_convert(a, force_timed_index=True, always_df=True)
-        assert type(b) == pd.DataFrame and b.index.is_all_dates
+        assert isinstance(b, pd.DataFrame) and b.index.is_all_dates
 
     def test_1d_series_to_frame(self):
         a = pd.Series(np.random.rand(8760))
         b = clean_convert(a, force_timed_index=True, always_df=True)
-        assert type(b) == pd.DataFrame and b.index.is_all_dates
+        assert isinstance(b, pd.DataFrame) and b.index.is_all_dates
 
     def test_2d_ndarray_to_df_indexed(self):
         a = np.random.rand(8760, 2)
         b = clean_convert(a, force_timed_index=True, always_df=True)
-        assert type(b) == pd.DataFrame and b.index.is_all_dates
+        assert isinstance(b, pd.DataFrame) and b.index.is_all_dates
 
     def test_list_to_series(self):
         a = list(np.random.rand(8760))
         b = clean_convert(a, force_timed_index=True, always_df=False)
-        assert type(b) == pd.Series
+        assert isinstance(b, pd.Series)
 
 
 def test_freq_to_sec():

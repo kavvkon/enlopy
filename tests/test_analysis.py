@@ -1,7 +1,7 @@
 import numpy as np
 
 from enlopy.utils import make_timeseries
-from enlopy.analysis import reshape_timeseries, get_LDC
+from enlopy.analysis import reshape_timeseries, get_LDC, get_load_stats
 
 
 def test_reshape_timeseries():
@@ -32,3 +32,12 @@ def test_get_LDC_2d():
     assert np.isclose(np.nansum(b[1]), np.nansum(a))
     # check monotonicity
     assert np.all(np.diff(b[1].sum(1)) < 0)
+
+def test_get_stats():
+    a = np.ones(8760)
+    a = make_timeseries(a, freq='h')
+    b = get_load_stats(a)
+    assert a.sum() == b.loc['Sum'].squeeze()
+    assert np.asarray(b.loc['Ramps (98%)'])[0] == (0,0)
+    assert np.isclose(0, b.loc['Trend'].squeeze())
+    assert 1 == b.loc['Load Factor (peakiness)'].squeeze()

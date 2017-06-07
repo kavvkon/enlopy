@@ -22,7 +22,7 @@ _EPS = np.finfo(np.float64).eps
 def disag_upsample(Load, disag_profile, to_offset='h'):
     """ Upsample given timeseries, disaggregating based on given load profiles.
     e.g. From daily to hourly. The load of each day is distributed according to the disaggregation profile. The sum of each day remains the same.
-    
+
     Arguments:
         Load (pd.Series): Load profile to disaggregate
         disag_profile (pd.Series, np.ndarray): disaggregation profile to be used on each timestep of the load. Has to be compatible with selected offset.
@@ -339,7 +339,7 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     otherwise it is smaller due to the shaved peaks. The peak load is reduced by a predefined percentage.
      
     Arguments:
-        Load (pd.Series): Load 
+        Load (pd.Series): Load
         percent_peak_hrs_month (float): fraction of hours to be shifted
         percent_shifted (float): fraction of energy to be shifted if the day is tagged for shifting/shaving
         shave (bool): If False peak load will be transfered to low load hours, otherwise it will be shaved.
@@ -355,8 +355,6 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
         """Assign to each row hours per month"""
         dic_hours_per_month = demand.groupby(demand.index.month).count().to_dict()
         return demand.resample('m').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
-
-    total_demand = demand.sum()
 
     # Monthly demand rank
     # TODO: parametrize: we can check peaks on a weekly or daily basis

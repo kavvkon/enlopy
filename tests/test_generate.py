@@ -129,11 +129,10 @@ def test_gen_corr_arrays():
     Na = 2
     length = 1000
     r = 0.85
-    tol = 0.01
     M = np.array([[1, r],
                   [r, 1]])
     A = gen_corr_arrays(Na, length, M)
     new_r = np.corrcoef(A)[0][1]
     assert A.shape == (Na, length)
     #allow some tolerance of convergence..
-    assert np.abs(new_r - r) <= 0.02
+    assert np.abs(new_r - r) <= 0.03

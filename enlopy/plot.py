@@ -13,7 +13,7 @@ __all__ = ['plot_heatmap', 'plot_3d', 'plot_percentiles', 'plot_rug', 'plot_boxp
 def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
                 palette='Oranges', colorbar=True, ax=None, **pltargs):
     """ Returns a 2D heatmap of the reshaped timeseries based on x, y
-    
+
     Arguments:
         Load: 1D pandas with timed index
         x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
@@ -139,7 +139,7 @@ def plot_boxplot(Load, by='day', **pltargs):
     # TODO Is it really needed? pd.boxplot()
 
 
-def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Set3', color='black', **kwargs):
+def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', **kwargs):
     """Plot Load duration curve
     
     Arguments:
@@ -158,8 +158,10 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Set3', color='black', **kwar
         # Reconverting to Dataframe as pd.plot.area is much more robust than plt.stackplot
         ldc_frame = pd.DataFrame(y, index=x)
         ldc_frame.plot.area(cmap=cmap, lw=0, legend=False, **kwargs)
+        y_max = np.nanmax(np.nansum(y, axis=1))
     else:
         plt.plot(x, y, color=color)
+        y_max = np.nanmax(y)
     if x_norm:
         plt.xlim(0, 1)
         plt.xlabel('Normalized duration')
@@ -170,7 +172,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Set3', color='black', **kwar
         plt.ylim(0,1)
         plt.ylabel('Normalized Power')
     else:
-        plt.ylim(0, np.nanmax(y))
+        plt.ylim(0, y_max)
         plt.ylabel('Power')
 
 

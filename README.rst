@@ -63,6 +63,13 @@ Currently you can find the latest stable version in pypi. You can install it wit
     pip install enlopy
 
 Be aware that this library is still in conceptual mode, so the API is most probably going to change in the following versions.
+If you already have it installed and you want to upgrade to the latest stable version please use the following:
+
+::
+
+    pip install -U --upgrade-strategy only-if-needed enlopy
+This will ensure that the dependencies will not be updated if the minimum requirements are already satisfied with the current version.
+
 If you want to download the latest version from git for use or development purposes:
 
 .. code:: bash
