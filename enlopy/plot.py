@@ -41,7 +41,7 @@ def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
 def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
            palette='Oranges', colorbar=True, **pltargs):
     """ Returns a 3D plot of the reshaped timeseries based on x, y
-    
+
     Arguments:
         Load: 1D pandas with timed index
         x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
@@ -124,22 +124,22 @@ def plot_boxplot(Load, by='day', **pltargs):
     Load = clean_convert(Load,force_timed_index=True)
 
     if by == 'day':
-        iter = Load.groupby(Load.index.weekday)
+        grp = Load.groupby(Load.index.weekday)
         labels = "Mon Tue Wed Thu Fri Sat Sun".split()
     elif by == 'hour':
-        iter = Load.groupby(Load.index.hour)
+        grp = Load.groupby(Load.index.hour)
         labels = np.arange(0, 24)
     else:
         raise NotImplementedError('Only "day" and "hour" are implemented')
     a = []
-    for timestep, value in iter:
+    for __, value in grp:
         a.append(value)
     plt.boxplot(a, labels=labels, **pltargs)
     # TODO : Generalize to return monthly, hourly etc.
     # TODO Is it really needed? pd.boxplot()
 
 
-def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', **kwargs):
+def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', legend=False, zoom_peak=False, ax=None, **kwargs):
     """Plot Load duration curve
     
     Arguments:
@@ -148,32 +148,59 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', **
         y_norm (bool): Normalize y axis (0,1)
         color (str): color of line. For Series only (1D)
         cmap (str): Colormap of area. For Dataframes only (2D)
-        kwargs (dict): exposes arguments of :meth:`enlopy.analysis.get_LDC`
+        legend (bool): Show legend. For Dataframes only (2D)
+        zoom_peak (bool): Show zoomed plot of peak
+        kwargs (dict): exposes arguments of pd.DataFrame.plot.area
     Returns:
         Load duration curve plot
     """
-    x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm, **kwargs)
+    x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm)
+    if ax is None:
+        __ = plt.figure(1)
+        ax_main = plt.axes()
+    else:
+        ax_main = ax
+
     if y.ndim >= 2:
         #plt.stackplot(x, y.T, cmap=cmap, **kwargs)
         # Reconverting to Dataframe as pd.plot.area is much more robust than plt.stackplot
-        ldc_frame = pd.DataFrame(y, index=x)
-        ldc_frame.plot.area(cmap=cmap, lw=0, legend=False, **kwargs)
+        ldc_frame = pd.DataFrame(y, index=x, columns=Load.columns)
+        ldc_frame.plot.area(cmap=cmap, lw=0, legend=legend, ax=ax_main, **kwargs)
         y_max = np.nanmax(np.nansum(y, axis=1))
     else:
-        plt.plot(x, y, color=color)
+        ax_main.plot(x, y, color=color)
         y_max = np.nanmax(y)
+    # Set axes labels
     if x_norm:
-        plt.xlim(0, 1)
-        plt.xlabel('Normalized duration')
+        ax_x_max = 1
+        xlabel = 'Normalized duration'
     else:
-        plt.xlim(0, len(y))
-        plt.xlabel('Duration')
+        ax_x_max = len(y)
+        xlabel = 'Duration'
     if y_norm:
-        plt.ylim(0,1)
-        plt.ylabel('Normalized Power')
+        ax_y_max = 1
+        ylabel = 'Normalized Power'
     else:
-        plt.ylim(0, y_max)
-        plt.ylabel('Power')
+        ax_y_max = y_max
+        ylabel = 'Power'
+
+    ax_main.set_xlim(0, ax_x_max)
+    ax_main.set_xlabel(xlabel)
+    ax_main.set_ylim(0, ax_y_max)
+    ax_main.set_ylabel(ylabel)
+    # Draw inset plot
+    if zoom_peak:
+        from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+        axins = zoomed_inset_axes(ax_main, 2.5, loc=1)
+        if y.ndim >= 2:
+            ldc_frame.plot.area(cmap=cmap, lw=0, legend=False, ax=axins, **kwargs)
+        else:
+            axins.plot(x, y, color=color)
+        axins.set_xlim([0, 0.15 * ax_x_max]) #TODO: Estimate x axis limits based on plotted values
+        axins.set_ylim([0.8 * ax_y_max, ax_y_max])
+        axins.get_xaxis().set_ticks([])
+        axins.get_yaxis().set_ticks([])
+        mark_inset(ax_main, axins, loc1=1, loc2=3, fc="none", ec="0.5")
 
 
 def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=False):
@@ -217,7 +244,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
     max_frame_value = np.nanmax(df_series.values)
     cm_obj = cm.get_cmap(cmap)
 
-    fig, axes = plt.subplots(nrows=rows, ncols=1, sharex=True,
+    __, axes = plt.subplots(nrows=rows, ncols=1, sharex=True,
                              figsize=(16, 0.25 * rows), squeeze=False,
                              frameon=False, gridspec_kw={'hspace': 0.15})
 

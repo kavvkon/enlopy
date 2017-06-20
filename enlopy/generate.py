@@ -123,7 +123,7 @@ def gen_corr_arrays(Na, length, M, to_uniform=True):
     distributed according to Z~N(μ,Σ) where μ is the vector of means,
     and Σ is the variance-covariance matrix.
     http://comisef.wikidot.com/tutorial:correlateduniformvariates
-    
+
     Arguments:
         Na (int): number of vectors e.g (3)
         length (int): generated vector size (e.g 8760)

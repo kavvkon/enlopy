@@ -74,7 +74,8 @@ def get_highest_periodicity(x): #highest peaks of fft
     return tuple(period for period in periods if min_p < period < max_p)
 
 def get_load_ratio(x):
-    return np.max(x) / np.min(x)
+    if np.min(x) != 0:
+        return np.max(x) / np.min(x)
 
 
 # TODO: Stochastic Information ? AR MA ?

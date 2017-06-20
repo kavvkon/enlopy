@@ -79,12 +79,12 @@ def get_LDC(Load, x_norm=True, y_norm=False):
 def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=False):
     """Extract typical load profiles using k-means and vector quantization. the time scale of archetypes depend on the selected dimensions (x,y).
     For the default values daily archetypes will be extracted.
-    
+
     Parameters:
         Load (pd.Series): timeseries
         k (int): number of archetypes to identify and extract
         x (str): This will define how the timeseries will be grouped by. Has to be an accessor of pd.DatetimeIndex
-        y (str): similar to above for y axis. 
+        y (str): similar to above for y axis.
         plot_diagnostics (bool): If true a figure is plotted showing an overview of the results
     Returns:
         np.ndarray: dimensions (k, len(x))
