@@ -6,7 +6,7 @@ __all__ = ['make_timeseries', 'clean_convert']
 
 def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
     """Convert numpy array to a pandas series with a timed index. Convenience wrapper around a datetime-indexed pd.DataFrame.
-    
+
     Parameters:
         x: (nd.array) raw data to wrap into a pd.Series
         startdate: pd.datetime
@@ -67,6 +67,27 @@ def _freq_to_sec(freq_keyword):
         raise ValueError('Works only with fixed frequencies e.g. h,s,t', e)
 
 
+def human_readable_time(delta, terms=1):
+    """Convert hours to human redable string
+    
+    :param delta: 
+    :param terms: 
+    :return: 
+    """
+    # Inspired by http://stackoverflow.com/questions/26164671/convert-seconds-to-readable-format-time
+    from dateutil.relativedelta import relativedelta
+
+    intervals = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
+    if delta > 31:
+        delta = delta
+    rd = relativedelta(hours=delta)
+    out = ""
+    for k in intervals[:terms]:
+        if getattr(rd, k):
+            out += '{} {} '.format(getattr(rd, k), k)
+    return out.strip()
+
+
 def clean_convert(x, force_timed_index=True, year=2015, always_df=False):
     """Converts a list, a numpy array, or a dataframe to pandas series or dataframe, depending on the
     compatibility and the requirements. Designed for maximum compatibility.
@@ -105,7 +126,7 @@ def clean_convert(x, force_timed_index=True, year=2015, always_df=False):
         if len(x.shape) == 1 and not always_df:
             return clean_convert(x.squeeze(), force_timed_index, year, always_df)
         else:
-            if force_timed_index:
+            if force_timed_index and not x.index.is_all_dates:
                 return make_timeseries(x, year=year)
             else:  # does not require datetimeindex
                 return x

@@ -68,6 +68,7 @@ If you already have it installed and you want to upgrade to the latest stable ve
 ::
 
     pip install -U --upgrade-strategy only-if-needed enlopy
+
 This will ensure that the dependencies will not be updated if the minimum requirements are already satisfied with the current version.
 
 If you want to download the latest version from git for use or development purposes:

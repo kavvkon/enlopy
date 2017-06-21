@@ -76,7 +76,7 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
 
 def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50], ax=None, color='blue', **kwargs):
     """Plot predefined percentiles per timestep
-    
+
     Arguments:
         Load: 1D pandas with timed index
         x (str): x axis aggregator. See :meth:`enlopy.analysis.reshape_timeseries`

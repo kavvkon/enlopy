@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 from enlopy.utils import make_timeseries
 from enlopy.analysis import reshape_timeseries, get_LDC, get_load_stats
 
@@ -15,6 +15,20 @@ def test_reshape_multiannual():
     a = make_timeseries(a, freq='h')
     b = reshape_timeseries(a, x='dayofyear', y='hour', aggfunc='sum')
     assert b.shape == (24,365)
+    assert np.isclose(b.sum().sum(), a.sum())
+
+def test_reshape_multiannual_dataframe():
+    a = np.random.rand(8760*2)
+    a = pd.DataFrame(make_timeseries(a, freq='h'))
+    b = reshape_timeseries(a, x='dayofyear', y='hour', aggfunc='sum')
+    assert b.shape == (24,365)
+    assert np.isclose(b.sum().sum(), a.sum())
+
+def test_reshape_monthly_multiannual():
+    ind = pd.DatetimeIndex(start='Jan-1990', end='Jan-2017', freq='m')
+    a = pd.DataFrame(np.random.rand(324), index=ind)
+    b = reshape_timeseries(a, x='month', y='year', aggfunc='sum')
+    assert b.shape == (27, 12)  # 27 years, 12 months
     assert np.isclose(b.sum().sum(), a.sum())
 
 def test_get_LDC():

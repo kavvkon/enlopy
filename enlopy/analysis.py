@@ -21,7 +21,7 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
 
     # Have to convert to dataframe in order for pivottable to work
     # 1D, Dataframe
-    a = clean_convert(Load, force_timed_index=True, always_df=True)
+    a = clean_convert(Load.copy(), force_timed_index=True, always_df=True)
     if len(a.columns) > 1:
         raise ValueError('Works only with 1D')
 
