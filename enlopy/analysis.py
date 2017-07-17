@@ -4,7 +4,7 @@ import pandas as pd
 
 from .utils import clean_convert
 
-__all__ = ['reshape_timeseries', 'get_LDC', 'get_load_archetypes', 'get_load_stats']
+__all__ = ['reshape_timeseries', 'get_LDC', 'get_load_archetypes', 'get_load_stats', 'detect_outliers']
 
 def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
     """Returns a reshaped pandas DataFrame that shows the aggregated load for selected
@@ -145,6 +145,32 @@ def _n_colors_from_colormap(n, cmap='Set1'):
     from matplotlib.cm import get_cmap
     cm = get_cmap(cmap)
     return [cm(1.*i/n) for i in range(n)]
+
+def detect_outliers(Load, threshold=None, window=5, plot_diagnostics=False):
+    """ Detect and optionally remove outliers based on median rolling window filtering.
+    Inspired by https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
+
+    Arguments:
+        Load: input timeseries
+        threshold: if None then 3 sigma is selected as threshold
+        window: how many values to check
+        plot_diagnostics: Plot diagnostics to check whether the outliers were removed accurately
+    Return:
+        index position of detected outliers
+   """
+    # TODO : Clean zero values (interpolate)
+
+    a = Load.rolling(window=window, center=True).median().fillna(method='bfill').fillna(method='ffill')
+    difference = np.abs(Load - a)
+
+    if threshold is None:
+        threshold = 3 * np.std(Load)
+    outlier_idx = difference > threshold
+    if plot_diagnostics:
+        kw = dict(marker='o', linestyle='none', color='r', alpha=0.5)
+        Load.plot()
+        Load[outlier_idx].plot(**kw)
+    return outlier_idx
 
 
 def countweekend_days_per_month(df, weekdays=True):     #TODO generalize count_x_per_y

@@ -14,7 +14,7 @@ from .utils import make_timeseries, clean_convert
 from .analysis import countweekend_days_per_month
 
 __all__ = ['disag_upsample', 'gen_load_from_daily_monthly', 'gen_load_sinus', 'gen_load_from_LDC',
-           'gen_load_from_PSD', 'detect_outliers', 'gen_demand_response', 'add_noise',
+           'gen_load_from_PSD', 'gen_gauss_markov', 'remove_outliers', 'gen_demand_response', 'add_noise',
            'gen_corr_arrays', 'gen_analytical_LDC']
 
 _EPS = np.finfo(np.float64).eps
@@ -168,11 +168,11 @@ def gen_load_from_LDC(LDC, Y=None, N=8760):
     """ Generate loads based on a Inverse CDF, such as a Load Duration Curve (LDC)
     Inverse transform sampling: Compute the value x such that F(x) = u.
     Take x to be the random number drawn from the distribution described by F.
-    
+
     .. note::
         Due to the sampling process this function produces load profiles with unrealistic temporal sequence, which means that they cannot be treated as
         timeseries. It is recommended that :meth:`gen_load_from_PSD` is used afterwards.
-    
+
     Arguments:
         LDC (np.ndarray): Load duration curve (2 x N) vector of the x, y coordinates of an LDC function (results of (get_LDC).
             x coordinates have to be normalized (max: 1 => 8760hrs )
@@ -200,13 +200,13 @@ def gen_load_from_PSD(Sxx, x, dt=1):
     """
     Algorithm for generating samples of a random process conforming to spectral
     density Sxx(w) and probability density function p(x).
-    
+
     .. note::
         This is done by an iterative process which 'shuffles' the timeseries till convergence of both
         power spectrum and marginal distribution is reached.
         Also known as "Iterated Amplitude Adjusted Fourier Transform (IAAFT). Adopted from `J.M. Nichols, C.C. Olson, J.V. Michalowicz, F. Bucholtz, (2010), "A simple algorithm for generating spectrally colored, non-Gaussian signals" Probabilistic Engineering Mechanics, Vol 25, 315-322`
         and `Schreiber, T. and Schmitz, A. (1996) "Improved Surrogate Data for Nonlinearity Tests", Physical Review Letters, Vol 77, 635-638.`
-        
+
     Arguments:
         Sxx: Spectral density (two sided)
         x: Sequence of observations created by the desirable PDF. You can use :meth:`gen_load_from_LDC` for that.
@@ -247,9 +247,52 @@ def gen_load_from_PSD(Sxx, x, dt=1):
     return make_timeseries(out)
 
 
+def gen_gauss_markov(mu, st, r):
+    """ Generate timeseries based on means, stadnard deviation and autocorrelation per timestep
+
+    Based on
+    A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
+    and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
+    Arguments:
+        mu: array of means. Can be either 1d or 2d
+        st: array of standard deviations. Can be either 1d or 2d. Can be either scalar (same for entire timeseries or array with the same length as the timeseries
+        r:  Autoregressive coefficient AR(1). Has to be between  [-1,1]. Can be either scalar (same for entire timeseries or array with the same length as the timeseries
+    Returns:
+        pd.Series, pd.DataFrame: a realization of the timeseries
+    """
+    mu = np.atleast_2d(mu)
+    loadlength = mu.shape
+    rndN = np.random.randn(*loadlength)
+    if np.atleast_2d(st).shape[1] == 1:
+        noisevector = st * np.ones(loadlength)
+    elif len(st) == loadlength[1]:
+        noisevector =  np.atleast_2d(st)
+    else:
+        raise ValueError('Length of standard deviations must be the same as the length of means. You can also use one value for the entire series')
+
+    if np.atleast_2d(r).shape[1] == 1:
+        rvector = r * np.ones(loadlength)
+    elif len(r) == loadlength[1]:
+        rvector =  np.atleast_2d(r)
+    else:
+        raise ValueError('Length of autocorrelations must be the same as the length of means. You can also use one value for the entire series')
+
+    y = np.zeros(loadlength)
+    noisevector[noisevector == 0] = _EPS
+    y[:,0] = mu[:,0] + noisevector[:, 0] * rndN[:, 0]
+
+ #   for t in mu.T:
+    for i in range(mu.shape[1]):
+        y[:,i] = (mu[:,i] +
+                r * noisevector[:, i] /
+                noisevector[:, i - 1] * (y[:, i - 1] - mu[:, i - 1]) +
+                noisevector[:, i] * np.sqrt(1 - rvector[:, i] ** 2) * rndN[:, i])
+    return y.squeeze()
+
+
 def add_noise(Load, mode, st, r=0.9, Lmin=0):
     """ Add noise with given characteristics.
-    
+
     Arguments:
         Load (pd.Series,pd.DataFrame): 1d or 2d timeseries
         mode (int):1 Normal Distribution, 2: Uniform Distribution, 3: Gauss Markov (autoregressive gaussian)
@@ -259,33 +302,6 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
     Returns:
         pd.Series: Load with noise
     """
-    def GaussMarkov(mu, st, r):
-        """Based on
-        A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
-        and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
-        Arguments:
-            mu: array of means. Can be either 1d or 2d
-            st: array of standard deviations. Can be either 1d or 2d
-            r:  Autoregressive coefficient AR(1). Has to be between  [-1,1]
-        Returns:
-            pd.Series,pd.DataFrame: a realization of the timeseries
-        """
-        mu = np.atleast_2d(mu)
-        loadlength = mu.shape
-        rndN = np.random.randn(*loadlength)
-        noisevector = st * np.ones(loadlength)
-        y = np.zeros(loadlength)
-        noisevector[noisevector == 0] = _EPS
-        y[0] = mu[0] + noisevector[0] * rndN[0]
-
-        for t in mu.T:
-            for i in range(len(t)):
-                y[i] = (mu[i] +
-                        r * noisevector[i] /
-                        noisevector[i - 1] * (y[i - 1] - mu[i - 1]) +
-                        noisevector[i] * np.sqrt(1 - r ** 2) * rndN[i])
-            y[y < Lmin] = Lmin  # remove negative elements
-            return y
 
     L = np.atleast_2d(Load)
 
@@ -300,17 +316,19 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
     elif mode == 2:  # Uniform
         noisevector = st * np.random.rand(*loadlength)
         out = L * ((1 - st) + st * noisevector)
-    elif mode == 3:  # Gauss-Markov
-        out = GaussMarkov(L, st, r)
+    elif mode == 3:  # Gauss-Markov, same as
+        out = gen_gauss_markov(L, st, r)
     else:
         raise ValueError('Not available mode')
-    return clean_convert(np.squeeze(out))
+    out[out < Lmin] = Lmin  # remove negative elements
+
+    return clean_convert(np.squeeze(out), force_timed_index=True, freq='h') # assume hourly timeseries if no timeindex is passed
 
 
 def gen_analytical_LDC(U, duration=8760, bins=1000):
     """Generates the Load Duration Curve based on empirical parameters. The following equation is used.
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
-    
+
     Arguments:
         U (tuple): parameter vector [Peak load, capacity factor%, base load%, hours] or dict
     Returns:
@@ -337,7 +355,7 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     The load profile is analyzed per selected period (currently month month) and the peak hours have their load shifted
     to low load hours or shaved. When not shaved the total load is the same as that one from the initial timeseries,
     otherwise it is smaller due to the shaved peaks. The peak load is reduced by a predefined percentage.
-     
+
     Arguments:
         Load (pd.Series): Load
         percent_peak_hrs_month (float): fraction of hours to be shifted
@@ -389,31 +407,17 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     return dem_adj
 
 
-def detect_outliers(Load, threshold=None, window=5, plot_diagnostics=False):
-    """ Remove outliers based on median rolling window filtering.
-    Inspired by https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
-    
+def remove_outliers(Load, **kwargs):
+    """ Removes outliers identified by :meth:`detect_outliers` and replaces them by interpolated value.
+
     Arguments:
         Load: input timeseries
-        threshold: if None then 3 sigma is selected as threshold
-        window: how many values to check
-        plot_diagnostics: Plot diagnostics to check whether the outliers were removed accurately
-    Return:
-        timeseries cleaned from outliers
-   """
-    # TODO : Clean zero values (interpolate)
-
-    a = Load.rolling(window=window, center=True).median().fillna(method='bfill').fillna(method='ffill')
-    difference = np.abs(Load - a)
-
-    if threshold is None:
-        threshold = 3 * np.std(Load)
-    outlier_idx = difference > threshold
-
+        **kwargs: Exposes keyword arguments of meth:`detect_outliers`
+    Returns:
+        Timeseries cleaned from outliers
+    """
+    from .analysis import detect_outliers
+    outlier_idx = detect_outliers(Load, **kwargs)
     filtered_series = Load.copy()
     filtered_series[outlier_idx] = np.nan
-    filtered_series = filtered_series.interpolate(method='time')
-    if plot_diagnostics:
-        kw = dict(marker='o', linestyle='none', color='r', alpha=0.5)
-        Load[outlier_idx].plot(**kw)
-    return filtered_series
+    return filtered_series.interpolate(method='time')

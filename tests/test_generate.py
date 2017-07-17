@@ -3,9 +3,15 @@ import pandas as pd
 from enlopy.utils import make_timeseries
 from enlopy.generate import (add_noise, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
                              disag_upsample, clean_convert, countweekend_days_per_month,
-                             gen_analytical_LDC, gen_load_from_LDC, gen_corr_arrays)
+                             gen_analytical_LDC, gen_load_from_LDC, gen_corr_arrays, gen_gauss_markov)
 
 class Test_noise():
+
+    def test_ndarray_gauss(self):
+        a = np.random.rand(24)
+        b = np.random.rand(24) / 10
+        c = gen_gauss_markov(a, b, .9)
+        assert isinstance(c, np.ndarray)
 
     def test_ndarray_add_noise_gauss(self):
         a = np.random.rand(8760)
@@ -16,6 +22,7 @@ class Test_noise():
         a = np.random.rand(8760, 2)
         b = add_noise(a, 3, 0.05)  # Gauss Markov noise
         assert isinstance(b, pd.DataFrame)
+        assert (8760,2) == b.shape
 
     def test_ndarray_add_noise_normal(self):
         a = np.random.rand(8760)
@@ -38,6 +45,11 @@ class Test_noise():
         b = add_noise(a, 2, 0.05)  # Gauss Markov noise
         assert isinstance(b, pd.DataFrame)
         assert (8760,2) == b.shape
+
+    def test_add_noise_not_annual(self):
+        a = np.random.rand(15)
+        b = add_noise(a, 3, 0.05)
+        assert isinstance(b, pd.Series)
 
 
 class Test_gen_monthly_daily():

@@ -171,6 +171,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', le
         ax_main.plot(x, y, color=color)
         y_max = np.nanmax(y)
     # Set axes labels
+    ax_x_min = np.min(x)
     if x_norm:
         ax_x_max = 1
         xlabel = 'Normalized duration'
@@ -184,9 +185,9 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', le
         ax_y_max = y_max
         ylabel = 'Power'
 
-    ax_main.set_xlim(0, ax_x_max)
+    ax_main.set_xlim(ax_x_min, ax_x_max)
     ax_main.set_xlabel(xlabel)
-    ax_main.set_ylim(0, ax_y_max)
+    ax_main.set_ylim(0, ax_y_max * 1.01)
     ax_main.set_ylabel(ylabel)
     # Draw inset plot
     if zoom_peak:
@@ -196,7 +197,7 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', le
             ldc_frame.plot.area(cmap=cmap, lw=0, legend=False, ax=axins, **kwargs)
         else:
             axins.plot(x, y, color=color)
-        axins.set_xlim([0, 0.15 * ax_x_max]) #TODO: Estimate x axis limits based on plotted values
+        axins.set_xlim([ax_x_min, 0.15 * ax_x_max]) #TODO: Estimate x axis limits based on plotted values
         axins.set_ylim([0.8 * ax_y_max, ax_y_max])
         axins.get_xaxis().set_ticks([])
         axins.get_yaxis().set_ticks([])
@@ -254,11 +255,11 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
                        rotation_mode='anchor',
                        horizontalalignment='right', x=-0.01)
         if iseries.sum() > 0:
+            x = iseries.index
             if on_off:
                 i_on_off = iseries.apply(flag_operation).replace(False, np.nan)
                 i_on_off.plot(ax=iax, style='|', lw=.7, cmap=cmap)
             else:
-                x = iseries.index
                 y = np.ones(len(iseries))
                 #Define (truncated) colormap:
                 if normalized:

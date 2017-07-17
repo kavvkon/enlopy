@@ -88,7 +88,7 @@ def human_readable_time(delta, terms=1):
     return out.strip()
 
 
-def clean_convert(x, force_timed_index=True, year=2015, always_df=False):
+def clean_convert(x, force_timed_index=True, always_df=False, **kwargs):
     """Converts a list, a numpy array, or a dataframe to pandas series or dataframe, depending on the
     compatibility and the requirements. Designed for maximum compatibility.
     
@@ -97,37 +97,38 @@ def clean_convert(x, force_timed_index=True, year=2015, always_df=False):
         force_timed_index (bool): if True it will return a timeseries index
         year (int): Year that will be used for the index
         always_df (bool): always return a dataframe even if the data is one dimensional
+        **kwargs: Exposes arguments of :meth:`make_timeseries`
     Returns:
         pd.Series: Timeseries
         
     """
 
     if isinstance(x, list):  # nice recursions
-        return clean_convert(pd.Series(x), force_timed_index, year, always_df)
+        return clean_convert(pd.Series(x), force_timed_index, always_df, **kwargs)
 
     elif isinstance(x, np.ndarray):
         if len(x.shape) == 1:
-            return clean_convert(pd.Series(x),force_timed_index, year, always_df)
+            return clean_convert(pd.Series(x),force_timed_index, always_df, **kwargs)
         else:
-            return clean_convert(pd.DataFrame(x), force_timed_index, year, always_df)
+            return clean_convert(pd.DataFrame(x), force_timed_index, always_df, **kwargs)
 
     elif isinstance(x, pd.Series):
         if always_df:
             x = pd.DataFrame(x)
-        if isinstance(x.index, pd.DatetimeIndex): # x.is_time_series()
+        if x.index.is_all_dates:
             return x
         else:  # if not datetime index
             if force_timed_index:
-                return make_timeseries(x, year=year)
+                return make_timeseries(x, **kwargs)
             else:  # does not require datetimeindex
                 return x
 
     elif isinstance(x, pd.DataFrame):
         if len(x.shape) == 1 and not always_df:
-            return clean_convert(x.squeeze(), force_timed_index, year, always_df)
+            return clean_convert(x.squeeze(), force_timed_index, always_df, **kwargs)
         else:
             if force_timed_index and not x.index.is_all_dates:
-                return make_timeseries(x, year=year)
+                return make_timeseries(x, **kwargs)
             else:  # does not require datetimeindex
                 return x
     else:
