@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from enlopy.utils import make_timeseries
-from enlopy.generate import (add_noise, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
+from enlopy.generate import (add_noise, gen_daily_stoch_el, gen_load_from_daily_monthly, gen_load_sinus, gen_demand_response,
                              disag_upsample, clean_convert, countweekend_days_per_month,
                              gen_analytical_LDC, gen_load_from_LDC, gen_corr_arrays, gen_gauss_markov)
 
@@ -65,6 +65,12 @@ class Test_gen_monthly_daily():
         Load1 = gen_load_from_daily_monthly(ML, DWL, DNWL, Weight, year)
         assert len(Load1) == 8760
         assert np.isclose(Load1.sum(), np.sum(ML))
+
+class Test_gen_dummy_load():
+    def test_gen_dummy(self):
+        a = gen_daily_stoch_el(1500)
+        assert isinstance(a, np.ndarray)
+        assert len(a) == 24
 
 class Test_gen_load_sinus():
     def test_gen_sinus(self):

@@ -13,7 +13,7 @@ import scipy.stats
 from .utils import make_timeseries, clean_convert
 from .analysis import countweekend_days_per_month
 
-__all__ = ['disag_upsample', 'gen_load_from_daily_monthly', 'gen_load_sinus', 'gen_load_from_LDC',
+__all__ = ['disag_upsample', 'gen_daily_stoch_el', 'gen_load_from_daily_monthly', 'gen_load_sinus', 'gen_load_from_LDC',
            'gen_load_from_PSD', 'gen_gauss_markov', 'remove_outliers', 'gen_demand_response', 'add_noise',
            'gen_corr_arrays', 'gen_analytical_LDC']
 
@@ -45,6 +45,30 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     return df1.resample(orig_freq).transform(mult_profile, disag_profile).dropna()
 
 
+def gen_daily_stoch_el(total_energy=1.0):
+    """Generate stochastic dummy daily load based on hardcoded values. These values are the result of
+    statistical analysis of electric loads profiles of more than 100 households. Mean and standard deviations per timestep were extracted
+    from the normalized series. These are fed to :meth:`gen_gauss_markov` method.
+    Arguments:
+        total_energy: Sum of produced timeseries (daily load)
+    Returns:
+        nd.array: random realization of timeseries
+    """
+
+    means = np.array([0.02603978, 0.02266633, 0.02121337, 0.02060187, 0.02198724,
+             0.02731497, 0.03540281, 0.0379463, 0.03646055, 0.03667756,
+             0.03822946, 0.03983243, 0.04150124, 0.0435474, 0.0463219,
+             0.05051979, 0.05745442, 0.06379564, 0.06646279, 0.06721004,
+             0.06510399, 0.05581182, 0.04449689, 0.03340142])
+    stds = np.array([0.00311355, 0.00320474, 0.00338432, 0.00345542, 0.00380437,
+           0.00477251, 0.00512785, 0.00527501, 0.00417598, 0.00375874,
+           0.00378784, 0.00452212, 0.00558736, 0.0067245, 0.00779101,
+           0.00803175, 0.00749863, 0.00365208, 0.00406937, 0.00482636,
+           0.00526445, 0.00480919, 0.00397309, 0.00387489])
+    a = gen_gauss_markov(means,stds, .8)
+    return a / a.sum() * total_energy
+
+
 def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
     """Generate annual timeseries using monthly demand and daily profiles.
     Working days and weekends are built from different profiles having different weighting factors.
@@ -59,9 +83,8 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
     """
     #TODO: refactor. Can i use disag_upsample() ?
     if not(np.isclose(DWL.sum(), 1) and np.isclose(DNWL.sum(), 1)):
-        print ('Daily profiles should be normalized')
+        raise ValueError('Daily profiles should be normalized')
         #TODO: Normalize here?
-        return
     out = make_timeseries(year=year, length=8760, freq='H')  # Create empty pandas with datetime index
     import calendar
     febdays = 29 if calendar.isleap(year) else 28
@@ -273,7 +296,7 @@ def gen_gauss_markov(mu, st, r):
     if np.atleast_2d(r).shape[1] == 1:
         rvector = r * np.ones(loadlength)
     elif len(r) == loadlength[1]:
-        rvector =  np.atleast_2d(r)
+        rvector = np.atleast_2d(r)
     else:
         raise ValueError('Length of autocorrelations must be the same as the length of means. You can also use one value for the entire series')
 
