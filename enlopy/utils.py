@@ -68,11 +68,13 @@ def _freq_to_sec(freq_keyword):
 
 
 def human_readable_time(delta, terms=1):
-    """Convert hours to human redable string
-    
-    :param delta: 
-    :param terms: 
-    :return: 
+    """Convert hours to human readable string
+
+    Arguments:
+        delta: time in seconds
+        terms: how many word terms to use, to describe the timestep
+    Returns
+        str: Human readable string
     """
     # Inspired by http://stackoverflow.com/questions/26164671/convert-seconds-to-readable-format-time
     from dateutil.relativedelta import relativedelta

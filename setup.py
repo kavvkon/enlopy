@@ -28,7 +28,7 @@ requirements = ['numpy>=1.10',
 setup(
     name="enlopy",
     author="Konstantinos Kavvadias",
-    author_email="kavvkon (at) gmail (dot) com",
+    author_email="kavvkon@gmail.com",
     url='https://github.com/kavvkon/enlopy',
     description='Python library with methods to generate, process, analyze, and plot energy related timeseries.',
     long_description=read('README.rst'),

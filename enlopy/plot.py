@@ -1,7 +1,6 @@
 from __future__ import division
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.colors as col
 import pandas as pd
 
 import numpy as np
@@ -234,16 +233,16 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
             return True
 
     # check if Series or dataframe
-    if len(df_series.shape) == 2:
+    if isinstance(df_series, pd.DataFrame):
         rows = len(df_series.columns)
-    elif len(df_series.shape) == 1:
+    elif isinstance(df_series, pd.Series):
         df_series = df_series.to_frame()
         rows = 1
     else:
         raise ValueError("Has to be either Series or Dataframe")
 
-    max_frame_value = np.nanmax(df_series.values)
-    cm_obj = cm.get_cmap(cmap)
+    max_color = np.nanmax(df_series.values)
+    min_color = np.nanmin(df_series.values)
 
     __, axes = plt.subplots(nrows=rows, ncols=1, sharex=True,
                              figsize=(16, 0.25 * rows), squeeze=False,
@@ -254,23 +253,28 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
         iax.set_ylabel(str(item)[:30], rotation='horizontal',
                        rotation_mode='anchor',
                        horizontalalignment='right', x=-0.01)
-        if iseries.sum() > 0:
-            x = iseries.index
+        x = iseries.index
+
+        if iseries.sum() > 0: # if series is not empty
             if on_off:
                 i_on_off = iseries.apply(flag_operation).replace(False, np.nan)
                 i_on_off.plot(ax=iax, style='|', lw=.7, cmap=cmap)
             else:
                 y = np.ones(len(iseries))
                 #Define (truncated) colormap:
-                if normalized:
-                    max_color = np.nanmax(iseries.values) / max_frame_value
-                    cmTmp = cm_obj(np.linspace(0, max_color, 50))
-                    i_cmap = col.ListedColormap(cmTmp)
-                else:
-                    i_cmap = cmap
+                if not normalized: # Replace max_color (frame) with series max
+                    max_color = np.nanmax(iseries.values)
+                    min_color = np.nanmin(iseries.values)
+                #Hack to plot max color when all series are equal
+                if np.isclose(min_color,max_color):
+                    min_color = min_color * 0.99
 
-                iax.scatter(x, y, marker='|', s=100,
-                            c=iseries.values, cmap=i_cmap)
+                iax.scatter(x, y,
+                            marker='|', s=100,
+                            c=iseries.values,
+                            vmin=min_color,
+                            vmax=max_color,
+                            cmap=cmap)
 
     axes.ravel()[0].set_title(fig_title)
     axes.ravel()[-1].spines['bottom'].set_visible(True)
