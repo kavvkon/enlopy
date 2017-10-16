@@ -276,6 +276,7 @@ def gen_gauss_markov(mu, st, r):
     Based on
     A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
     and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
+
     Arguments:
         mu: array of means. Can be either 1d or 2d
         st: array of standard deviations. Can be either 1d or 2d. Can be either scalar (same for entire timeseries or array with the same length as the timeseries
@@ -435,7 +436,7 @@ def remove_outliers(Load, **kwargs):
 
     Arguments:
         Load: input timeseries
-        **kwargs: Exposes keyword arguments of meth:`detect_outliers`
+        **kwargs: Exposes keyword arguments of :meth:`detect_outliers`
     Returns:
         Timeseries cleaned from outliers
     """
