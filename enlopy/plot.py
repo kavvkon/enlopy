@@ -253,7 +253,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
         iax.set_ylabel(str(item)[:30], rotation='horizontal',
                        rotation_mode='anchor',
                        horizontalalignment='right', x=-0.01)
-        x = iseries.index
+        x = iseries.index.values
 
         if iseries.sum() > 0: # if series is not empty
             if on_off:
