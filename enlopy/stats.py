@@ -77,8 +77,9 @@ def get_load_ratio(x):
     if np.min(x) != 0:
         return np.max(x) / np.min(x)
 
+def get_autocorr(x, lag=1):
+    return np.corrcoef(np.array([x[0:len(x)-lag], x[lag:len(x)]]))[0,1]
 
-# TODO: Stochastic Information ? AR MA ?
 # TODO: 2d: parcorr
 
 from functools import partial
@@ -92,6 +93,7 @@ all_stats_desc = {'Sum': np.sum,
                   'Ramps (98%)': partial(get_ramp_rates, a=98),
                   'Min (2%)': partial(get_percentile, a=0.02, trunced=False),
                   'Periodicity': lambda x: get_highest_periodicity(x)[0:2],
+                  'Autocorrelation(1)': partial(get_autocorr, lag=1),
                   'Trend': get_trend,
                   'Load ratio (max/min)': get_load_ratio
                   }

@@ -240,6 +240,8 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
         rows = 1
     else:
         raise ValueError("Has to be either Series or Dataframe")
+    if len(df_series) < 1:
+        raise ValueError("Has to be non empty Series or Dataframe")
 
     max_color = np.nanmax(df_series.values)
     min_color = np.nanmin(df_series.values)
@@ -253,20 +255,20 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
         iax.set_ylabel(str(item)[:30], rotation='horizontal',
                        rotation_mode='anchor',
                        horizontalalignment='right', x=-0.01)
-        x = iseries.index.values
+        x = iseries.index.to_pydatetime()
 
-        if iseries.sum() > 0: # if series is not empty
+        if iseries.sum() > 0:  # if series is not empty
             if on_off:
                 i_on_off = iseries.apply(flag_operation).replace(False, np.nan)
                 i_on_off.plot(ax=iax, style='|', lw=.7, cmap=cmap)
             else:
                 y = np.ones(len(iseries))
                 #Define (truncated) colormap:
-                if not normalized: # Replace max_color (frame) with series max
+                if not normalized:  # Replace max_color (frame) with series max
                     max_color = np.nanmax(iseries.values)
                     min_color = np.nanmin(iseries.values)
-                #Hack to plot max color when all series are equal
-                if np.isclose(min_color,max_color):
+                # Hack to plot max color when all series are equal
+                if np.isclose(min_color, max_color):
                     min_color = min_color * 0.99
 
                 iax.scatter(x, y,

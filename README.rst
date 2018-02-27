@@ -79,7 +79,7 @@ If you want to download the latest version from git for use or development purpo
     cd enlopy
     conda env create  # Automatically creates environment based on environment.yml
     source activate enlopy
-    pip install . -e # Install editable local version
+    pip install -e . # Install editable local version
 
 It should be ready to run out of the box for anyone that has the
 `anaconda distribution <https://www.continuum.io/downloads>`__
@@ -118,7 +118,7 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
    :target: https://pypi.python.org/pypi/enlopy
 .. |build_status| image:: http://img.shields.io/travis/kavvkon/enlopy/master.svg?style=flat
    :target: https://travis-ci.org/kavvkon/enlopy
-.. |docs| image:: https://readthedocs.org/projects/pip/badge/
+.. |docs| image:: https://readthedocs.org/projects/enlopy/badge/
     :alt: Documentation
     :target: http://enlopy.readthedocs.io/en/latest/
 
