@@ -78,7 +78,11 @@ def get_load_ratio(x):
         return np.max(x) / np.min(x)
 
 def get_autocorr(x, lag=1):
-    return np.corrcoef(np.array([x[0:len(x)-lag], x[lag:len(x)]]))[0,1]
+    if np.isclose(np.min(x),np.max(x)):
+        #if x vector is flat, autocorrelation is not defined
+        return np.nan
+    else:
+        return np.corrcoef(np.array([x[0:len(x)-lag], x[lag:len(x)]]))[0,1]
 
 # TODO: 2d: parcorr
 
