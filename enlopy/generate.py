@@ -239,7 +239,7 @@ def gen_load_from_PSD(Sxx, x, dt=1):
 
     """
     N = len(x)
-    Sxx[N/2+1] = 0  # zero out the DC component (remove mean)
+    Sxx[int(N/2)+1] = 0  # zero out the DC component (remove mean)
     Xf = np.sqrt(2 * np.pi * N * Sxx / dt)  # Convert PSD to Fourier amplitudes
     Xf = np.fft.ifftshift(Xf)  # Put in Matlab FT format
     # The following lines were commented out because they outscale the data
@@ -263,11 +263,11 @@ def gen_load_from_PSD(Sxx, x, dt=1):
         out[indx] = xo  # rank reorder (simulate nonlinear transform)
         k = k + 1  # increment counter
         if np.array_equal(indx, indxp):
-            print('Converged after {} iterations').format(k)
+            print('Converged after {} iterations'.format(k))
             k = 0  # if we converged, stop
         indxp = indx  # re-set ordering for next iter
     out = out + mx  # Put back in the mean
-    return make_timeseries(out)
+    return out
 
 
 def gen_gauss_markov(mu, st, r):

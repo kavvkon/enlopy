@@ -3,15 +3,11 @@ Welcome to enlopy's documentation!
 :Version: |version|
 :Date: |today|
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
 Contents
 --------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
    API
 
@@ -37,7 +33,7 @@ It consists of four modules that include among others the following:
 
 * ``Analysis``: Overview of descriptive statistics, reshape, load duration curve, extract daily archetypes (clustering)
 * ``Plot``: 2d heatmap, 3d plot, boxplot, rugplot
-* ``Generate``: generate from daily and monthly profiles, generate from sinusoidal function, sample from given load duration curve, or from given PSD, add noise gaussian and autoregressive noise, generate correlated load profiles , fit to analytical load duration curve
+* ``Generate``: generate from daily and monthly profiles, generate from sinusoidal function, sample from given load duration curve, or from given PSD, add noise gaussian and autoregressive noise, generate correlated load profiles, fit to analytical load duration curve
 * ``Statistics``: Feature extraction from timeseries for a quick overview of the characteristics of any load curve. Useful when coupled with machine learning packages.
 
 This library is not focusing on regression and prediction (e.g. ARIMA, state-space etc.), since there are numerous relevant libraries around.

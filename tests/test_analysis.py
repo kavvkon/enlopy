@@ -63,3 +63,9 @@ def test_get_stats():
     assert np.asarray(b.loc['Ramps (98%)'])[0] == (0,0)
     assert np.isclose(0, b.loc['Trend'].squeeze())
     assert 1 == b.loc['Load Factor (peakiness)'].squeeze()
+
+def test_get_stats_df():
+    a = np.ones(8760)
+    a = make_timeseries(a, freq='h').to_frame()
+    b = get_load_stats(a)
+    assert a.sum().sum() == b.loc['Sum'].squeeze()

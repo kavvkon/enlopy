@@ -121,12 +121,14 @@ def clean_convert(x, force_timed_index=True, always_df=False, **kwargs):
             return x
         else:  # if not datetime index
             if force_timed_index:
+                print('Forcing Datetimeindex into passed timeseries.'
+                      'For more accurate results please pass a pandas time-indexed timeseries.')
                 return make_timeseries(x, **kwargs)
             else:  # does not require datetimeindex
                 return x
 
     elif isinstance(x, pd.DataFrame):
-        if len(x.shape) == 1 and not always_df:
+        if x.shape[1] == 1 and not always_df:
             return clean_convert(x.squeeze(), force_timed_index, always_df, **kwargs)
         else:
             if force_timed_index and not x.index.is_all_dates:

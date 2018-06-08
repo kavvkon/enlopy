@@ -78,6 +78,7 @@ def get_load_ratio(x):
         return np.max(x) / np.min(x)
 
 def get_autocorr(x, lag=1):
+    # We redefine AR with numpy to avoid importing statsmodels
     if np.isclose(np.min(x),np.max(x)):
         #if x vector is flat, autocorrelation is not defined
         return np.nan

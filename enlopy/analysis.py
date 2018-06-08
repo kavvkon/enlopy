@@ -121,16 +121,19 @@ def get_load_stats(Load, per='a'):
     """Find load profile characteristics. Among other it estimates: peak, load factor, base load factor, operating hours,
 
     Arguments:
-        Load: timeseries of load to be examined
+        Load: timeseries of load to be examined. A timeseries index is needed.
         per: reporting periods. Annual by default. Based on pandas time offsets
     Returns:
          dict: Parameter dictionary
     """
      #TODO 2D
     from .stats import all_stats_desc
-    g = Load.groupby(pd.Grouper(freq=per))
+
+    Load1 = clean_convert(Load, force_timed_index=True, freq='h')
+
+    g = Load1.groupby(pd.Grouper(freq=per))
     if len(g) > 100:
-        print ('Warning: {} periods selected'.format(len(g)))
+        print ('Warning: Too many periods ({}) selected'.format(len(g)))
     p_dict = {}
     for period, load_per in g:
         ind = str(period.to_period())
