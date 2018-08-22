@@ -14,7 +14,7 @@ before_install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda info -a
-s# Edit the environment.yml file for the target Python version
+# Edit the environment.yml file for the target Python version
 - sed -i -E 's/(python=)(.*)/\1'$TRAVIS_PYTHON_VERSION'/' ./environment.yml
 
 install:
