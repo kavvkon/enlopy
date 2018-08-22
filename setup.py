@@ -3,10 +3,10 @@
 import codecs
 from setuptools import setup, find_packages
 import os
+import re
 
 # import distutils.command.bdist_conda
 
-import enlopy
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,7 +18,13 @@ def read(*parts):
     with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
         return f.read()
 
-version = enlopy.__version__
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 requirements = ['numpy>=1.10',
                 'scipy>=0.15',
@@ -33,7 +39,7 @@ setup(
     description='Python library with methods to generate, process, analyze, and plot energy related timeseries.',
     long_description=read('README.rst'),
     license="BSD-3-Clause",
-    version=version,
+    version=find_version("enlopy", "__init__.py"),
     install_requires=requirements,
     keywords=['energy','timeseries','statistics','profile','demand'],
     packages=find_packages(),

@@ -112,7 +112,7 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
 
 def plot_boxplot(Load, by='day', **pltargs):
     """Return boxplot plot for each day of the week
-    
+
     Arguments:
         Load (pd.Series): 1D pandas Series with timed index
         by (str): group results by 'day' or 'hour'

@@ -103,6 +103,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
             cm = _n_colors_from_colormap(k)
             df.T.plot(legend=False, alpha=.2,
                       color=[cm[i] for i in clusters])
+            #TODO ADD colored cluster centers as lines
             plt.figure() #FIXME: works only with weekdays
             day_clusters = pd.DataFrame({y: Load.resample('d').mean().index.weekday,
                                          'clusters': clusters,
@@ -171,9 +172,12 @@ def detect_outliers(Load, threshold=None, window=5, plot_diagnostics=False):
         threshold = 3 * np.std(Load)
     outlier_idx = difference > threshold
     if plot_diagnostics:
-        kw = dict(marker='o', linestyle='none', color='r', alpha=0.5)
-        Load.plot()
-        Load[outlier_idx].plot(**kw)
+        if len(outlier_idx > 0):
+            kw = dict(marker='o', linestyle='none', color='r', alpha=0.5)
+            Load.plot()
+            Load[outlier_idx].plot(**kw)
+        else:
+            print('No outliers detected. If you think that there are, try to raise the threshold')
     return outlier_idx
 
 

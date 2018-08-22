@@ -54,7 +54,7 @@ def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
 
 def _freq_to_sec(freq_keyword):
     """ Converts pandas frequency string keyword to seconds. Not all frequency offsets can be converted to seconds.
-    
+
     Arguments:
         freq_keyword: frequency based on pandas offsets
     Returns:
