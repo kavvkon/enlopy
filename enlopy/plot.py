@@ -10,35 +10,36 @@ from .analysis import reshape_timeseries, clean_convert, get_LDC
 __all__ = ['plot_heatmap', 'plot_3d', 'plot_percentiles', 'plot_rug', 'plot_boxplot', 'plot_LDC' ]
 
 def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
-                palette='Oranges', colorbar=True, ax=None, **pltargs):
+                figsize=(16,6), edgecolors='none', cmap='Oranges', colorbar=True, ax=None, **pltargs):
     """ Returns a 2D heatmap of the reshaped timeseries based on x, y
-
     Arguments:
         Load: 1D pandas with timed index
         x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         y: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         bins: Number of bins for colormap
-        palette: palette name (from colorbrewer, matplotlib etc.)
+        edgecolors: colour of edges around individual squares. 'none' or 'w' is recommended.
+
+        cmap: colormap name (from colorbrewer, matplotlib etc.)
         **pltargs: Exposes matplotlib.plot arguments
     Returns:
         2d heatmap
     """
     x_y = reshape_timeseries(Load, x=x, y=y, aggfunc=aggfunc)
     if ax is None:
-        fig, ax = plt.subplots(figsize=(16, 6))
+        fig, ax = plt.subplots(figsize=figsize)
 
-    cmap_obj = cm.get_cmap(palette, bins)
-    heatmap = ax.pcolor(x_y, cmap=cmap_obj, edgecolors='w', **pltargs)
+    cmap_obj = cm.get_cmap(cmap, bins)
+    heatmap = ax.pcolor(x_y, cmap=cmap_obj, edgecolors=edgecolors, **pltargs)
     if colorbar:
         fig.colorbar(heatmap)
-    ax.set_xlim(xmax=len(x_y.columns))
-    ax.set_ylim(ymax=len(x_y.index))
+    ax.set_xlim(right=len(x_y.columns))
+    ax.set_ylim(top=len(x_y.index))
     ax.set_xlabel(x)
     ax.set_ylabel(y)
 
 
 def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
-           palette='Oranges', colorbar=True, **pltargs):
+           cmap='Oranges', colorbar=True, **pltargs):
     """ Returns a 3D plot of the reshaped timeseries based on x, y
 
     Arguments:
@@ -46,7 +47,7 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
         x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         y: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         bins: Number of bins for colormap
-        palette: palette name (from colorbrewer, matplotlib etc.)
+        cmap: colormap name (from colorbrewer, matplotlib etc.)
         **pltargs: Exposes :meth:`matplotlib.pyplot.surface` arguments
     Returns:
         3d plot
@@ -57,7 +58,7 @@ def plot_3d(Load, x='dayofyear', y='hour', aggfunc='sum', bins=15,
 
     fig = plt.figure(figsize=(12, 6))
     ax = fig.add_subplot(111, projection='3d')
-    cmap_obj = cm.get_cmap(palette, bins)
+    cmap_obj = cm.get_cmap(cmap, bins)
     X, Y = np.meshgrid(range(len(x_y.columns)), range(len(x_y.index)))
     surf = ax.plot_surface(X, Y, x_y, cmap=cmap_obj, rstride=1, cstride=1,
                            shade=False, antialiased=True, lw=0, **pltargs)
@@ -138,7 +139,8 @@ def plot_boxplot(Load, by='day', **pltargs):
     # TODO Is it really needed? pd.boxplot()
 
 
-def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', legend=False, zoom_peak=False, ax=None, **kwargs):
+def plot_LDC(Load, stacked=True, x_norm=True, y_norm=False, cmap='Spectral', color='black',
+             legend=False, zoom_peak=False, ax=None, **kwargs):
     """Plot Load duration curve
     
     Arguments:
@@ -153,22 +155,33 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', le
     Returns:
         Load duration curve plot
     """
-    x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm)
     if ax is None:
         __ = plt.figure(1)
         ax_main = plt.axes()
     else:
         ax_main = ax
 
-    if y.ndim >= 2:
-        #plt.stackplot(x, y.T, cmap=cmap, **kwargs)
-        # Reconverting to Dataframe as pd.plot.area is much more robust than plt.stackplot
-        ldc_frame = pd.DataFrame(y, index=x, columns=Load.columns)
-        ldc_frame.plot.area(cmap=cmap, lw=0, legend=legend, ax=ax_main, **kwargs)
-        y_max = np.nanmax(np.nansum(y, axis=1))
+    if Load.ndim >= 2:
+        if stacked:
+            x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm)
+            # Reconverting to Dataframe as pd.plot.area is much more robust than plt.stackplot
+
+            ldc_frame = pd.DataFrame(y, index=x, columns=Load.columns)
+            y_max = np.nanmax(np.nansum(y, axis=1))
+            if y_norm: # We need to renormalize cause the sum of columns is more than 1.0
+                ldc_frame = ldc_frame/ y_max
+            ldc_frame.plot.area(cmap=cmap, lw=0, legend=legend, ax=ax_main, **kwargs)
+            y_max = np.nanmax(np.nansum(y, axis=1))
+        else:
+            for __, v in Load.items():
+                x, y = get_LDC(v, x_norm=x_norm, y_norm=y_norm)
+                ax_main.plot(x, y, color=color)
+            y_max = np.nanmax(y)
     else:
+        x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm)
         ax_main.plot(x, y, color=color)
         y_max = np.nanmax(y)
+
     # Set axes labels
     ax_x_min = np.min(x)
     if x_norm:
@@ -203,13 +216,13 @@ def plot_LDC(Load, x_norm=True, y_norm=False, cmap='Spectral', color='black', le
         mark_inset(ax_main, axins, loc1=1, loc2=3, fc="none", ec="0.5")
 
 
-def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=False):
+def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', fig_width=14, normalized=False):
     """Create multiaxis rug plot from pandas Dataframe
     
     Arguments:
         df_series (pd.DataFrame): 2D pandas with timed index
         on_off (bool): if True all points that are above 0 will be plotted as one color. If False all values will be colored based on their value.
-        cmap (str): palette name (from colorbrewer, matplotlib etc.)
+        cmap (str): colormap name (from colorbrewer, matplotlib etc.)
         fig_title (str): Figure title
         normalized (bool): if True, all series colormaps will be normalized based on the maximum value of the dataframe
     Returns:
@@ -247,7 +260,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', normalized=Fal
     min_color = np.nanmin(df_series.values)
 
     __, axes = plt.subplots(nrows=rows, ncols=1, sharex=True,
-                             figsize=(16, 0.25 * rows), squeeze=False,
+                             figsize=(fig_width, 0.25 * rows), squeeze=False,
                              frameon=False, gridspec_kw={'hspace': 0.15})
 
     for (item, iseries), iax in zip(df_series.iteritems(), axes.ravel()):

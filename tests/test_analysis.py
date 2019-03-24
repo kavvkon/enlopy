@@ -25,7 +25,7 @@ def test_reshape_multiannual_dataframe():
     assert np.isclose(b.sum().sum(), a.sum())
 
 def test_reshape_monthly_multiannual():
-    ind = pd.DatetimeIndex(start='Jan-1990', end='Jan-2017', freq='m')
+    ind = pd.DatetimeIndex(pd.date_range(start='Jan-1990', end='Jan-2017', freq='m'))
     a = pd.DataFrame(np.random.rand(324), index=ind)
     b = reshape_timeseries(a, x='month', y='year', aggfunc='sum')
     assert b.shape == (27, 12)  # 27 years, 12 months
