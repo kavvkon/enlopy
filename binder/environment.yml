@@ -1,0 +1,12 @@
+name: enlopy-binder
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - numpy>=1.12
+  - matplotlib>=2.0
+  - pandas>=0.22
+  - scipy>=1.0
+  - enlopy
+  - rise

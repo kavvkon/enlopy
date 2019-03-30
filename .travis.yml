@@ -35,17 +35,18 @@ after_script:
  - source deactivate
 
 deploy:
+#  - provider: pypi
+#    distributions: sdist
+#    server: https://test.pypi.org/legacy/
+#    user: kavvkon
+#    password:
+#      secure: "HpCjUZlXEMVBTJ6M/JVOv3ohEY3wafrfJxmW4BmrEyQ2Lhf1csdDTRJpQyWiBPzFhcrlk3KglK4gjnILzdFSTDB8I8/lb6/V2eCpoi1JpMU2NRpw1A9WbW6wqQaaFJ2aCJu0D5Evtw4FnxJWkMeGMTbUka/yr2VIleY9Alx1C4mfO3qc3S7/FmqFkYadDqf8WdbulqAT+UUXMjkidba9lM2t/ZEGj0NEy4gJ1IeIgJDA0FL+tk3/edtxzVOPMt7hrniEeoWT9unm/QJ0ea5hIGKNDg+TK4x7KffCeMVnzhnXmU7o+u7VbjbPEbk/ResNB3Jz1z92m2crw2n5esC5c5UFhhtndQ9THM0tI2fn/wC9XJmt6WGuIKQU18eR03wZyedz2uK0Y/3jzJxXgN5x3CxW1bqjLY0sb62FnfXeojAA1nfb3332E9xNAwaXNkosJPKjCEj2bsxds7vt9J3e9ptyv9kFENvAp40JLpYXRNow0LkAWSm+aqzQt99c1QJPxMrAuLllvcWJyw8P/pHNImv3vLOLs30ogEescFH1FyIXnSSvUv2Vxc3oIGU6OS7sQtYMpsppeh4/5gQQgQUsQHwb9cZVFDe2ueXeABvk5Lmq766zvIEcesooSOofigIwMbjahQOzhvGaH9940JDdspSmZrQejh40sT9x7ScX7EA="
+#    on:
+#     branch: master
+#     tags: false
+#     condition: $TRAVIS_PYTHON_VERSION = "2.7"
   - provider: pypi
-    distributions: sdist
-    server: https://test.pypi.org/legacy/
-    user: kavvkon
-    password:
-      secure: "HpCjUZlXEMVBTJ6M/JVOv3ohEY3wafrfJxmW4BmrEyQ2Lhf1csdDTRJpQyWiBPzFhcrlk3KglK4gjnILzdFSTDB8I8/lb6/V2eCpoi1JpMU2NRpw1A9WbW6wqQaaFJ2aCJu0D5Evtw4FnxJWkMeGMTbUka/yr2VIleY9Alx1C4mfO3qc3S7/FmqFkYadDqf8WdbulqAT+UUXMjkidba9lM2t/ZEGj0NEy4gJ1IeIgJDA0FL+tk3/edtxzVOPMt7hrniEeoWT9unm/QJ0ea5hIGKNDg+TK4x7KffCeMVnzhnXmU7o+u7VbjbPEbk/ResNB3Jz1z92m2crw2n5esC5c5UFhhtndQ9THM0tI2fn/wC9XJmt6WGuIKQU18eR03wZyedz2uK0Y/3jzJxXgN5x3CxW1bqjLY0sb62FnfXeojAA1nfb3332E9xNAwaXNkosJPKjCEj2bsxds7vt9J3e9ptyv9kFENvAp40JLpYXRNow0LkAWSm+aqzQt99c1QJPxMrAuLllvcWJyw8P/pHNImv3vLOLs30ogEescFH1FyIXnSSvUv2Vxc3oIGU6OS7sQtYMpsppeh4/5gQQgQUsQHwb9cZVFDe2ueXeABvk5Lmq766zvIEcesooSOofigIwMbjahQOzhvGaH9940JDdspSmZrQejh40sT9x7ScX7EA="
-    on:
-     branch: master
-     tags: false
-     condition: $TRAVIS_PYTHON_VERSION = "2.7"
-  - provider: pypi
+    distributions: sdist bdist_wheel
     user: kavvkon
     password:
       secure: "HpCjUZlXEMVBTJ6M/JVOv3ohEY3wafrfJxmW4BmrEyQ2Lhf1csdDTRJpQyWiBPzFhcrlk3KglK4gjnILzdFSTDB8I8/lb6/V2eCpoi1JpMU2NRpw1A9WbW6wqQaaFJ2aCJu0D5Evtw4FnxJWkMeGMTbUka/yr2VIleY9Alx1C4mfO3qc3S7/FmqFkYadDqf8WdbulqAT+UUXMjkidba9lM2t/ZEGj0NEy4gJ1IeIgJDA0FL+tk3/edtxzVOPMt7hrniEeoWT9unm/QJ0ea5hIGKNDg+TK4x7KffCeMVnzhnXmU7o+u7VbjbPEbk/ResNB3Jz1z92m2crw2n5esC5c5UFhhtndQ9THM0tI2fn/wC9XJmt6WGuIKQU18eR03wZyedz2uK0Y/3jzJxXgN5x3CxW1bqjLY0sb62FnfXeojAA1nfb3332E9xNAwaXNkosJPKjCEj2bsxds7vt9J3e9ptyv9kFENvAp40JLpYXRNow0LkAWSm+aqzQt99c1QJPxMrAuLllvcWJyw8P/pHNImv3vLOLs30ogEescFH1FyIXnSSvUv2Vxc3oIGU6OS7sQtYMpsppeh4/5gQQgQUsQHwb9cZVFDe2ueXeABvk5Lmq766zvIEcesooSOofigIwMbjahQOzhvGaH9940JDdspSmZrQejh40sT9x7ScX7EA="
