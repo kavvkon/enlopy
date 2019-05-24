@@ -33,7 +33,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     #First reindexing to the new resolution.
     orig_freq = Load.index.freqstr
     start = Load.index[0]
-    end = Load.index[-1] + 1 #An extra period is needed at the end to match the sum FIXME
+    end = Load.index[-1] + 1 * Load.index.freq #An extra period is needed at the end to match the sum FIXME
     df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, closed='left'))
 
     def mult_profile(x, profile):
@@ -273,9 +273,9 @@ def gen_load_from_PSD(Sxx, x, dt=1):
 def gen_gauss_markov(mu, st, r):
     """ Generate timeseries based on means, stadnard deviation and autocorrelation per timestep
 
-    Based on
-    A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
-    and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499
+    .. note::
+        Based on `A.M. Breipohl, F.N. Lee, D. Zhai, R. Adapa, A Gauss-Markov load model for the application in risk evaluation
+        and production simulation, Transactions on Power Systems, 7 (4) (1992), pp. 1493-1499`
 
     Arguments:
         mu: array of means. Can be either 1d or 2d
@@ -350,13 +350,13 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
 
 
 def gen_analytical_LDC(U, duration=8760, bins=1000):
-    """Generates the Load Duration Curve based on empirical parameters. The following equation is used.
+    r"""Generates the Load Duration Curve based on empirical parameters. The following equation is used.
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
 
     Arguments:
         U (tuple): parameter vector [Peak load, capacity factor%, base load%, hours] or dict
     Returns:
-        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
+        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(*gen_analytical_LDC(U)))
     """
     if isinstance(U, dict):
         P = U['peak']  # peak load
@@ -376,7 +376,7 @@ def gen_analytical_LDC(U, duration=8760, bins=1000):
 
 def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05, shave=False):
     """Simulate a demand response mechanism that makes the load profile less peaky.
-    The load profile is analyzed per selected period (currently month month) and the peak hours have their load shifted
+    The load profile is analyzed per selected period (currently month) and the peak hours have their load shifted
     to low load hours or shaved. When not shaved the total load is the same as that one from the initial timeseries,
     otherwise it is smaller due to the shaved peaks. The peak load is reduced by a predefined percentage.
 
@@ -428,6 +428,11 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     dem_adj = demand.copy()
     dem_adj[bool_shift_from] = dem_adj[bool_shift_from] * (1 - percent_shifted)
     dem_adj[~bool_shift_from] = dem_adj[~bool_shift_from] + DR_shift_to
+
+    # In case of load shift check that the sum of initial timeseries is similar to the reshaped one
+    if not np.isclose(dem_adj.sum(), Load.sum()):
+        raise ValueError('Sum is not the same. Probably you overdid it with the shifting parameters.'
+                         'Please try with more conservative ones.')
     return dem_adj
 
 

@@ -38,15 +38,14 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
 
 
 def get_LDC(Load, x_norm=True, y_norm=False):
-    """Generates the Load Duration Curve based on a given load. For 2-dimensional dataframes the x-axis sorting
-     is done based on sum of all series. Sorting on the y-axis is done based on the coefficient of variance.
+    r"""Generates the Load Duration Curve based on a given load. For 2-dimensional dataframes the x-axis sorting is done based on sum of all series. Sorting on the y-axis is done based on the coefficient of variance.
 
     Arguments:
         Load (pd.Series): timeseries
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
     Returns:
-        np.ndarray: tuple (x, y) ready for plotting (e.g. plt(\*LDC_load(load)))
+        np.ndarray: tuple (x, y) ready for plotting (e.g. plt(*LDC_load(load)))
     """
     Load1 = clean_convert(Load)
     if Load1.ndim >= 2:

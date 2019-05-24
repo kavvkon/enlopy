@@ -4,7 +4,7 @@ Python toolkit for energy load time series
 |pyversion| |anaconda| |license| |version_status| |build_status| |docs| |cover| |binder|
 
 ``enlopy`` is an open source python library with methods to generate,
-process, analyze, and plot energy related timeseries.
+process, analyze, and plot timeseries.
 
 While it can be used for any kind of data it has a strong focus on those
 that are related with energy i.e. electricity/heat demand or generation,

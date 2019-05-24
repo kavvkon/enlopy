@@ -49,7 +49,7 @@ def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
         else:
             return pd.Series(x, index=date_list)
     else:
-        raise ValueError('Unkown type of data passed')
+        raise ValueError('Unknown type of data passed')
 
 
 def _freq_to_sec(freq_keyword):

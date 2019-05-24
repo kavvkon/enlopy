@@ -12,13 +12,13 @@ __all__ = ['plot_heatmap', 'plot_3d', 'plot_percentiles', 'plot_rug', 'plot_boxp
 def plot_heatmap(Load, x='dayofyear', y='hour', aggfunc='sum', bins=8,
                 figsize=(16,6), edgecolors='none', cmap='Oranges', colorbar=True, ax=None, **pltargs):
     """ Returns a 2D heatmap of the reshaped timeseries based on x, y
+
     Arguments:
         Load: 1D pandas with timed index
         x: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         y: Parameter for :meth:`enlopy.analysis.reshape_timeseries`
         bins: Number of bins for colormap
         edgecolors: colour of edges around individual squares. 'none' or 'w' is recommended.
-
         cmap: colormap name (from colorbrewer, matplotlib etc.)
         **pltargs: Exposes matplotlib.plot arguments
     Returns:
@@ -176,7 +176,7 @@ def plot_LDC(Load, stacked=True, x_norm=True, y_norm=False, cmap='Spectral', col
         else:
             for __, v in Load.items():
                 x, y = get_LDC(v, x_norm=x_norm, y_norm=y_norm)
-                ax_main.plot(x, y, color=color)
+                ax_main.plot(x, y, color=color, **kwargs)
             y_max = np.nanmax(y)
     else:
         x, y = get_LDC(Load, x_norm=x_norm, y_norm=y_norm)
