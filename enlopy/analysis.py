@@ -45,7 +45,7 @@ def get_LDC(Load, x_norm=True, y_norm=False):
         x_norm (bool): Normalize x axis (0,1)
         y_norm (bool): Normalize y axis (0,1)
     Returns:
-        np.ndarray: tuple (x, y) ready for plotting (e.g. plt(*LDC_load(load)))
+        np.ndarray: tuple (x, y) ready for plotting (e.g. plt(\*LDC_load(load)))
     """
     Load1 = clean_convert(Load)
     if Load1.ndim >= 2:
@@ -91,22 +91,25 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
     """
     from scipy.cluster.vq import whiten, kmeans, vq
 
-    df = reshape_timeseries(Load, x=x, y=y, aggfunc='mean')
-    df_white = whiten(df.astype(float))
+    df = reshape_timeseries(Load, x=x, y=y, aggfunc='mean').astype(float)
+    df_white = whiten(df)
     clusters_center, __ = kmeans(df_white, k)
+    clusters_center_dewhitened = clusters_center.T * np.array([df.std(), ] * k ).T
 
     if plot_diagnostics:
         try:
             import matplotlib.pyplot as plt
             clusters, _ = vq(df_white, clusters_center)
             cm = _n_colors_from_colormap(k)
-            df.T.plot(legend=False, alpha=.2,
-                      color=[cm[i] for i in clusters])
-            #TODO ADD colored cluster centers as lines
-            plt.figure() #FIXME: works only with weekdays
+            ax1 = df.T.plot(legend=False, alpha=.1,
+                            color=[cm[i] for i in clusters])
+            # Add colored cluster centers as lines
+            ax1.set_prop_cycle('color', cm)
+            ax1.plot(clusters_center_dewhitened, linewidth=3, linestyle='--')
+            plt.figure()  # FIXME: works only with weekdays
             day_clusters = pd.DataFrame({y: Load.resample('d').mean().index.weekday,
                                          'clusters': clusters,
-                                         'val':1})
+                                         'val': 1})
             x_labels = "Mon Tue Wed Thu Fri Sat Sun".split()
             day_clusters.pivot_table(columns=y, index='clusters',
                                      aggfunc='count').T.plot.bar(stacked=True)
@@ -114,7 +117,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
         except Exception: #FIXME: specify exception
             print ('Works only with daily profile clustering')
 
-    return clusters_center.T
+    return clusters_center_dewhitened
 
 
 def get_load_stats(Load, per='a'):

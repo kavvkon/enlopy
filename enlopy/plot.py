@@ -170,7 +170,7 @@ def plot_LDC(Load, stacked=True, x_norm=True, y_norm=False, cmap='Spectral', col
             y_max = np.nanmax(np.nansum(ldc_frame, axis=1))
             if y_norm: # We need to renormalize cause the sum of columns is more than 1.0
                 ldc_frame = ldc_frame/ y_max
-            if (ldc_frame<0).any(): # TODO: Can we stack negative values?
+            if (ldc_frame<0).any(axis=None): # TODO: Can we stack negative values?
                 raise ValueError('Cannot plot stacked area with negative values. Try stacked=False instead')
             ldc_frame.plot.area(cmap=cmap, lw=0, legend=legend, ax=ax_main, **kwargs)
         else:
