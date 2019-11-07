@@ -47,6 +47,13 @@ def test_get_LDC_not_annual():
     #check monotonicity
     assert np.all(np.diff(b[1]) < 0)
 
+def test_get_LDC_not_annual_ndarray():
+    a = np.random.rand(10000)
+    b = get_LDC(a)
+    assert np.isclose(b[1].sum(), a.sum())
+    #check monotonicity
+    assert np.all(np.diff(b[1]) < 0)
+
 def test_get_LDC_2d():
     a = np.random.rand(8760, 4)
     a = make_timeseries(a, freq='h')

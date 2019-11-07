@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
+import logging
 
 __all__ = ['make_timeseries', 'clean_convert']
 
 
-def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
+def make_timeseries(x=None, year=None, length=None, startdate=None, freq=None):
     """Convert numpy array to a pandas series with a timed index. Convenience wrapper around a datetime-indexed pd.DataFrame.
 
     Parameters:
@@ -18,6 +19,9 @@ def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
     """
 
     if startdate is None:
+        if year is None:
+            logging.info('No info on the year was provided. Using current year')
+            year = pd.datetime.now().year
         startdate = pd.datetime(year, 1, 1, 0, 0, 0)
 
     if x is None:
@@ -27,7 +31,7 @@ def make_timeseries(x=None, year=2015, length=None, startdate=None, freq=None):
         length = len(x)
         if freq is None:
             # Shortcuts: Commonly used frequencies are automatically assigned
-            if len(x) == 8760:
+            if len(x) == 8760 or len(x) == 8784:
                 freq = 'H'
             elif len(x) == 35040:
                 freq = '15min'
@@ -121,7 +125,7 @@ def clean_convert(x, force_timed_index=True, always_df=False, **kwargs):
             return x
         else:  # if not datetime index
             if force_timed_index:
-                print('Forcing Datetimeindex into passed timeseries.'
+                logging.debug('Forcing Datetimeindex into passed timeseries.'
                       'For more accurate results please pass a pandas time-indexed timeseries.')
                 return make_timeseries(x, **kwargs)
             else:  # does not require datetimeindex

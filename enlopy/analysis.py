@@ -47,7 +47,7 @@ def get_LDC(Load, x_norm=True, y_norm=False):
     Returns:
         np.ndarray: tuple (x, y) ready for plotting (e.g. plt(\*LDC_load(load)))
     """
-    Load1 = clean_convert(Load)
+    Load1 = clean_convert(Load,force_timed_index=False)
     if Load1.ndim >= 2:
         # Sort x axis by total value
         sorted_ind = Load1.sum(axis=1).sort_values(ascending=False).index
