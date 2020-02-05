@@ -12,14 +12,14 @@ def test_reshape_timeseries():
 
 def test_reshape_multiannual():
     a = np.random.rand(8760*2)
-    a = make_timeseries(a, freq='h')
+    a = make_timeseries(a, year=2019, freq='h')
     b = reshape_timeseries(a, x='dayofyear', y='hour', aggfunc='sum')
     assert b.shape == (24,365)
     assert np.isclose(b.sum().sum(), a.sum())
 
 def test_reshape_multiannual_dataframe():
     a = np.random.rand(8760*2)
-    a = pd.DataFrame(make_timeseries(a, freq='h'))
+    a = pd.DataFrame(make_timeseries(a, year=2019, freq='h'))
     b = reshape_timeseries(a, x='dayofyear', y='hour', aggfunc='sum')
     assert b.shape == (24,365)
     assert np.isclose(b.sum().sum(), a.sum())

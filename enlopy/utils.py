@@ -1,6 +1,8 @@
+import datetime as dt
+import logging
+
 import numpy as np
 import pandas as pd
-import logging
 
 __all__ = ['make_timeseries', 'clean_convert']
 
@@ -21,8 +23,8 @@ def make_timeseries(x=None, year=None, length=None, startdate=None, freq=None):
     if startdate is None:
         if year is None:
             logging.info('No info on the year was provided. Using current year')
-            year = pd.datetime.now().year
-        startdate = pd.datetime(year, 1, 1, 0, 0, 0)
+            year = dt.datetime.now().year
+        startdate = dt.datetime(year, 1, 1, 0, 0, 0)
 
     if x is None:
         if length is None:

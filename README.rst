@@ -1,7 +1,7 @@
 Python toolkit for energy load time series
 ==========================================
 
-|pyversion| |anaconda| |license| |version_status| |build_status| |docs| |cover| |binder|
+|pyversion| |anaconda| |license| |version_status| |githubci| |docs| |cover| |binder|
 
 ``enlopy`` is an open source python library with methods to generate,
 process, analyze, and plot timeseries.
@@ -134,8 +134,6 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
     :target: https://opensource.org/licenses/BSD-3-Clause
 .. |version_status| image:: https://img.shields.io/pypi/v/enlopy.svg?style=flat
    :target: https://pypi.python.org/pypi/enlopy
-.. |build_status| image:: https://img.shields.io/travis/kavvkon/enlopy/master.svg?style=flat
-   :target: https://travis-ci.org/kavvkon/enlopy
 .. |docs| image:: https://readthedocs.org/projects/enlopy/badge/
     :alt: Documentation
     :target: https://enlopy.readthedocs.io/en/latest/
@@ -145,4 +143,5 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
     :target: https://anaconda.org/conda-forge/enlopy
 .. |binder| image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/kavvkon/enlopy/master?filepath=notebooks%2FBasic%20examples.ipynb
-
+.. |githubci| image:: https://img.shields.io/github/workflow/status/kavvkon/enlopy/enlopy-tests
+   :target: https://github.com/kavvkon/enlopy/actions
