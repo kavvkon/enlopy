@@ -1,4 +1,4 @@
-name: Python package
+name: enlopy-tests
 
 on: [push]
 
@@ -32,5 +32,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pip install pytest
-        pytest
+        pip install pytest pytest-cov coveralls
+        coverage run --source enlopy -m py.test
+        coveralls
+
+
