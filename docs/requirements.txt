@@ -1,7 +1,7 @@
 matplotlib==2.0.0
 numpy==1.12.1
 pandas==0.19.2
-py==1.4.33
+py==1.10.0
 python-dateutil==2.6.0
 pytz==2017.2
 scipy==0.19.0
