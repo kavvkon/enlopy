@@ -388,7 +388,7 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     Return:
         pd.Series: New load profile with reduced peaks. The peak can be shifted to low load hours or shaved
     """
-    if not Load.index.is_all_dates:
+    if not isinstance(Load.index, pd.DatetimeIndex):
         print ('Need date Time indexed series. Trying to force one.')
         Load = clean_convert(Load, force_timed_index=True)
     demand = Load

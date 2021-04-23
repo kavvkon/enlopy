@@ -123,7 +123,7 @@ def clean_convert(x, force_timed_index=True, always_df=False, **kwargs):
     elif isinstance(x, pd.Series):
         if always_df:
             x = pd.DataFrame(x)
-        if x.index.is_all_dates:
+        if isinstance(x.index, pd.DatetimeIndex):
             return x
         else:  # if not datetime index
             if force_timed_index:
@@ -137,7 +137,7 @@ def clean_convert(x, force_timed_index=True, always_df=False, **kwargs):
         if x.shape[1] == 1 and not always_df:
             return clean_convert(x.squeeze(), force_timed_index, always_df, **kwargs)
         else:
-            if force_timed_index and not x.index.is_all_dates:
+            if force_timed_index and not isinstance(x.index, pd.DatetimeIndex):
                 return make_timeseries(x, **kwargs)
             else:  # does not require datetimeindex
                 return x
