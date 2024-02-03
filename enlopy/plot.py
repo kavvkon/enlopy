@@ -1,4 +1,3 @@
-from __future__ import division
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd

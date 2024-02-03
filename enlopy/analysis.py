@@ -1,4 +1,3 @@
-from __future__ import division
 import numpy as np
 import pandas as pd
 
@@ -120,7 +119,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
     return clusters_center_dewhitened
 
 
-def get_load_stats(Load, per='a') -> pd.DataFrame:
+def get_load_stats(Load, per='Y') -> pd.DataFrame:
     """Find load profile characteristics. Among other it estimates: peak, load factor, base load factor, operating hours,
 
     Arguments:

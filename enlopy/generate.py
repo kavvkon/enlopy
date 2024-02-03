@@ -2,7 +2,6 @@
 """
 Methods that generate or adjusted energy related timeseries based on given assumptions/input
 """
-from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pandas as pd
@@ -395,11 +394,11 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     def hours_per_month(demand):
         """Assign to each row hours per month"""
         dic_hours_per_month = demand.groupby(demand.index.month).count().to_dict()
-        return demand.resample('m').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
+        return demand.resample('M').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
 
     # Monthly demand rank
     # TODO: parametrize: we can check peaks on a weekly or daily basis
-    demand_m_rank = demand.resample('m').transform(lambda x: x.rank(method='min', ascending=False))
+    demand_m_rank = demand.resample('M').transform(lambda x: x.rank(method='min', ascending=False))
 
     # find which hours are going to be shifted
     bool_shift_from = demand_m_rank <= np.round(hours_per_month(demand) * percent_peak_hrs_month)

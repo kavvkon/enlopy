@@ -95,7 +95,7 @@ class Test_disag():
         y = make_timeseries(y, freq='h')
 
         disag_profile = np.random.rand(60)
-        y_disag = disag_upsample(y, disag_profile, to_offset='t')
+        y_disag = disag_upsample(y, disag_profile, to_offset='min')
         assert np.isclose(np.sum(y_disag), np.sum(y) ) # <= 0.001 #FIXME: np test equality
         assert len(y_disag) == 8760*60
 

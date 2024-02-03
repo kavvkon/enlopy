@@ -34,11 +34,11 @@ def make_timeseries(x=None, year=None, length=None, startdate=None, freq=None):
         if freq is None:
             # Shortcuts: Commonly used frequencies are automatically assigned
             if len(x) == 8760 or len(x) == 8784:
-                freq = 'H'
+                freq = 'h'
             elif len(x) == 35040:
                 freq = '15min'
             elif len(x) == 12:
-                freq = 'm'
+                freq = 'M'
             else:
                 raise ValueError('Input vector length must be 12, 8760 or 35040. Otherwise freq has to be defined')
 
