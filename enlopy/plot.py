@@ -264,7 +264,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', fig_width=14, 
                              figsize=(fig_width, 0.25 * rows), squeeze=False,
                              frameon=False, gridspec_kw={'hspace': 0.15})
 
-    for (item, iseries), iax in zip(df_series.iteritems(), axes.ravel()):
+    for (item, iseries), iax in zip(df_series.items(), axes.ravel()):
         format_axis(iax)
         iax.set_ylabel(str(item)[:30], rotation='horizontal',
                        rotation_mode='anchor',

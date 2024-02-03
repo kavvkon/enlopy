@@ -120,7 +120,7 @@ def get_load_archetypes(Load, k=2, x='hour', y='dayofyear', plot_diagnostics=Fal
     return clusters_center_dewhitened
 
 
-def get_load_stats(Load, per='a'):
+def get_load_stats(Load, per='a') -> pd.DataFrame:
     """Find load profile characteristics. Among other it estimates: peak, load factor, base load factor, operating hours,
 
     Arguments:
@@ -139,7 +139,7 @@ def get_load_stats(Load, per='a'):
         print ('Warning: Too many periods ({}) selected'.format(len(g)))
     p_dict = {}
     for period, load_per in g:
-        ind = str(period.to_period())
+        ind = str(period.to_period(freq=per))
         p_dict[ind] = {k: v(load_per) for k, v in all_stats_desc.items()}  #  named tuple instead of dict?
     return pd.DataFrame.from_dict(p_dict)
 

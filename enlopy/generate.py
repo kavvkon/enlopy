@@ -34,7 +34,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     orig_freq = Load.index.freqstr
     start = Load.index[0]
     end = Load.index[-1] + 1 * Load.index.freq #An extra period is needed at the end to match the sum FIXME
-    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, closed='left'))
+    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, inclusive='left'))
 
     def mult_profile(x, profile):
         #Normalizing to keep the sum the same..
@@ -345,18 +345,17 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
     else:
         raise ValueError('Not available mode')
     out[out < Lmin] = Lmin  # remove negative elements
+    return clean_convert(np.squeeze(out), force_timed_index=False) # assume hourly timeseries if no timeindex is passed
 
-    return clean_convert(np.squeeze(out), force_timed_index=True, freq='h') # assume hourly timeseries if no timeindex is passed
 
-
-def gen_analytical_LDC(U, duration=8760, bins=1000):
+def gen_analytical_LDC(U, duration=8760,bins=1000):
     r"""Generates the Load Duration Curve based on empirical parameters. The following equation is used.
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
 
     Arguments:
         U (tuple): parameter vector [Peak load, capacity factor%, base load%, hours] or dict
     Returns:
-        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(*gen_analytical_LDC(U)))
+        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
     """
     if isinstance(U, dict):
         P = U['peak']  # peak load

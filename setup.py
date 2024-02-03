@@ -27,9 +27,9 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 requirements = ['numpy>=1.10',
-                'scipy>=0.15',
-                'matplotlib>=1.5.1',
-                'pandas>=0.18']
+                'scipy>=1.10',
+                'matplotlib>=2.2',
+                'pandas>=1.4']
 
 setup(
     name="enlopy",
@@ -65,10 +65,14 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
+#        'Programming Language :: Python :: 2.7',
+#        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
 
         #    distclass=distutils.command.bdist_conda.CondaDistribution,
         #    conda_buildnum=1,
