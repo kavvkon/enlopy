@@ -2,7 +2,7 @@ name: enlopy
 dependencies:
   - python=3.9
   - numpy>=1.10
-  - scipy>=1.0
+  - scipy>=1.7
   - matplotlib>=2.0
   - pandas>=2.0
   - pytest

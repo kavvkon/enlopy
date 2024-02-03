@@ -27,7 +27,7 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 requirements = ['numpy>=1.10',
-                'scipy>=1.10',
+                'scipy>=1.7',
                 'matplotlib>=2.2',
                 'pandas>=1.4']
 
