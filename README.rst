@@ -139,9 +139,9 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
     :target: https://enlopy.readthedocs.io/en/latest/
 .. |cover| image:: https://coveralls.io/repos/github/kavvkon/enlopy/badge.svg?branch=master
     :target: https://coveralls.io/github/kavvkon/enlopy?branch=master
-.. |anaconda| image:: https://anaconda.org/conda-forge/enlopy/badges/installer/conda.svg
+.. |anaconda| image:: https://anaconda.org/conda-forge/enlopy/badges/version.svg
     :target: https://anaconda.org/conda-forge/enlopy
 .. |binder| image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/kavvkon/enlopy/master?filepath=notebooks%2FBasic%20examples.ipynb
-.. |githubci| image:: https://img.shields.io/github/workflow/status/kavvkon/enlopy/enlopy-tests
+.. |githubci| image:: https://img.shields.io/github/actions/workflow/status/kavvkon/enlopy/pythonpackage.yml
    :target: https://github.com/kavvkon/enlopy/actions
