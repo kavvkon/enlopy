@@ -143,5 +143,5 @@ http://dx.doi.org/10.1016/j.apenergy.2016.08.077
     :target: https://anaconda.org/conda-forge/enlopy
 .. |binder| image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/kavvkon/enlopy/master?filepath=notebooks%2FBasic%20examples.ipynb
-.. |githubci| image:: https://img.shields.io/github/actions/workflow/status/kavvkon/enlopy/pythonpackage.yml
+.. |githubci| image:: https://img.shields.io/github/actions/workflow/status/kavvkon/enlopy/tests.yml
    :target: https://github.com/kavvkon/enlopy/actions
