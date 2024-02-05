@@ -10,45 +10,45 @@ class Test_make_timeseries():
         a = np.random.rand(8760)
         b = make_timeseries(a)
         assert isinstance(b, pd.Series)
-        assert sum(a) == sum(b)
+        assert np.isclose(sum(a), sum(b))
 
     def test_ndarray_15m(self):
         a = np.random.rand(35040)
         b = make_timeseries(a)
         assert isinstance(b, pd.Series)
-        assert sum(a) == sum(b)
+        assert np.isclose(sum(a), sum(b))
 
     def test_ndarray_x(self):
         a = np.random.rand(8730)
         b = make_timeseries(a, freq='h')
         assert isinstance(b, pd.Series)
-        assert sum(a) == sum(b)
+        assert np.isclose(sum(a), sum(b))
 
     def test_pdseries(self):
         a = pd.Series(np.random.rand(8760))
         b = make_timeseries(a)
         assert isinstance(b, pd.Series)
-        assert sum(a) == sum(b)
+        assert np.isclose(sum(a), sum(b))
 
     def test_pddataframe(self):
         a = pd.DataFrame(np.random.rand(8760))
         b = make_timeseries(a)
-        assert type(b) == pd.DataFrame
+        assert isinstance(b, pd.DataFrame)
 
     def test_pddataframe_2d(self):
         a = pd.DataFrame(np.random.rand(35040,3))
         b = make_timeseries(a)
-        assert type(b) == pd.DataFrame
+        assert isinstance(b, pd.DataFrame)
 
     def test_2d_ndarray(self):
         a = np.random.rand(8760,5)
         b = make_timeseries(a)
-        assert type(b) == pd.DataFrame
+        assert isinstance(b, pd.DataFrame)
 
     def test_empty_frame(self):
         a = np.array([])
         b = make_timeseries(a, freq='h')
-        assert type(b) == pd.Series and len(b)==0
+        assert isinstance(b, pd.Series) and len(b)==0
 
     def test_empty_frame_to_indexed_empty(self):
         b = make_timeseries(freq='h', length=8760)
@@ -58,7 +58,7 @@ class Test_make_timeseries():
         a = np.random.rand(8760*2)
         b = make_timeseries(a, freq='h')
         assert isinstance(b, pd.Series)
-        assert sum(a) == sum(b)
+        assert np.isclose(sum(a), sum(b))
 
 
 class Test_clean_convert():

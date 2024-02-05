@@ -84,13 +84,13 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
     if not(np.isclose(DWL.sum(), 1) and np.isclose(DNWL.sum(), 1)):
         raise ValueError('Daily profiles should be normalized')
         #TODO: Normalize here?
-    out = make_timeseries(year=year, length=8760, freq='H')  # Create empty pandas with datetime index
+    out = make_timeseries(year=year, length=8760, freq='h')  # Create empty pandas with datetime index
     import calendar
     febdays = 29 if calendar.isleap(year) else 28
     Days = np.array([31, febdays, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
     # Assumptions for non working days per month. Only weekends
     # TODO: Custom Calendars with holidays BDays
-    DaysNW = countweekend_days_per_month(out.resample('d').mean())
+    DaysNW = countweekend_days_per_month(out.resample('D').mean())
     DaysW = Days - DaysNW
     for month in range(12):
         # Estimate total load for working and non working day
