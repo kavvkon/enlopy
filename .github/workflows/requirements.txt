@@ -1,4 +1,4 @@
 numpy>=1.10
-scipy>=1.0
+scipy>=1.7
 matplotlib>=2.2
-pandas>=0.20
+pandas>=2.0

@@ -27,9 +27,9 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 requirements = ['numpy>=1.10',
-                'scipy>=0.15',
-                'matplotlib>=1.5.1',
-                'pandas>=0.18']
+                'scipy>=1.10',
+                'matplotlib>=2.2',
+                'pandas>=2.0']
 
 setup(
     name="enlopy",
@@ -40,6 +40,7 @@ setup(
     long_description=read('README.rst'),
     license="BSD-3-Clause",
     version=find_version("enlopy", "__init__.py"),
+    python_requires = ">=3.9",
     install_requires=requirements,
     keywords=['energy','timeseries','statistics','profile','demand'],
     packages=find_packages(),
@@ -65,10 +66,10 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
 
         #    distclass=distutils.command.bdist_conda.CondaDistribution,
         #    conda_buildnum=1,

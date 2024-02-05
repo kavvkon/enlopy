@@ -1,4 +1,3 @@
-from __future__ import division
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd
@@ -90,7 +89,7 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
     if ax is None: # Hack for nice jupyter notebook compatibility
         ax=plt.gca()
     a = reshape_timeseries(Load, x=x, y=zz, aggfunc='mean')
-    xx = a.columns.values
+    xx = a.columns.to_list()
 
     # TODO: s 2s 3s instead of percentiles
 
@@ -264,7 +263,7 @@ def plot_rug(df_series, on_off=False, cmap='Greys', fig_title='', fig_width=14, 
                              figsize=(fig_width, 0.25 * rows), squeeze=False,
                              frameon=False, gridspec_kw={'hspace': 0.15})
 
-    for (item, iseries), iax in zip(df_series.iteritems(), axes.ravel()):
+    for (item, iseries), iax in zip(df_series.items(), axes.ravel()):
         format_axis(iax)
         iax.set_ylabel(str(item)[:30], rotation='horizontal',
                        rotation_mode='anchor',

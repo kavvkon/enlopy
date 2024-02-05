@@ -2,7 +2,6 @@
 """
 Methods that generate or adjusted energy related timeseries based on given assumptions/input
 """
-from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import pandas as pd
@@ -34,7 +33,7 @@ def disag_upsample(Load, disag_profile, to_offset='h'):
     orig_freq = Load.index.freqstr
     start = Load.index[0]
     end = Load.index[-1] + 1 * Load.index.freq #An extra period is needed at the end to match the sum FIXME
-    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, closed='left'))
+    df1 = Load.reindex(pd.date_range(start, end, freq=to_offset, inclusive='left'))
 
     def mult_profile(x, profile):
         #Normalizing to keep the sum the same..
@@ -85,13 +84,13 @@ def gen_load_from_daily_monthly(ML, DWL, DNWL, weight=0.5, year=2015):
     if not(np.isclose(DWL.sum(), 1) and np.isclose(DNWL.sum(), 1)):
         raise ValueError('Daily profiles should be normalized')
         #TODO: Normalize here?
-    out = make_timeseries(year=year, length=8760, freq='H')  # Create empty pandas with datetime index
+    out = make_timeseries(year=year, length=8760, freq='h')  # Create empty pandas with datetime index
     import calendar
     febdays = 29 if calendar.isleap(year) else 28
     Days = np.array([31, febdays, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
     # Assumptions for non working days per month. Only weekends
     # TODO: Custom Calendars with holidays BDays
-    DaysNW = countweekend_days_per_month(out.resample('d').mean())
+    DaysNW = countweekend_days_per_month(out.resample('D').mean())
     DaysW = Days - DaysNW
     for month in range(12):
         # Estimate total load for working and non working day
@@ -345,18 +344,17 @@ def add_noise(Load, mode, st, r=0.9, Lmin=0):
     else:
         raise ValueError('Not available mode')
     out[out < Lmin] = Lmin  # remove negative elements
+    return clean_convert(np.squeeze(out), force_timed_index=False) # assume hourly timeseries if no timeindex is passed
 
-    return clean_convert(np.squeeze(out), force_timed_index=True, freq='h') # assume hourly timeseries if no timeindex is passed
 
-
-def gen_analytical_LDC(U, duration=8760, bins=1000):
+def gen_analytical_LDC(U, duration=8760,bins=1000):
     r"""Generates the Load Duration Curve based on empirical parameters. The following equation is used.
     :math:`f(x;P,CF,BF) = \\frac{P-x}{P-BF \\cdot P}^{\\frac{CF-1}{BF-CF}}`
 
     Arguments:
         U (tuple): parameter vector [Peak load, capacity factor%, base load%, hours] or dict
     Returns:
-        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(*gen_analytical_LDC(U)))
+        np.ndarray: a 2D array [x, y] ready for plotting (e.g. plt(\*gen_analytical_LDC(U)))
     """
     if isinstance(U, dict):
         P = U['peak']  # peak load
@@ -388,7 +386,7 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     Return:
         pd.Series: New load profile with reduced peaks. The peak can be shifted to low load hours or shaved
     """
-    if not Load.index.is_all_dates:
+    if not isinstance(Load.index, pd.DatetimeIndex):
         print ('Need date Time indexed series. Trying to force one.')
         Load = clean_convert(Load, force_timed_index=True)
     demand = Load
@@ -396,11 +394,11 @@ def gen_demand_response(Load, percent_peak_hrs_month=0.03, percent_shifted=0.05,
     def hours_per_month(demand):
         """Assign to each row hours per month"""
         dic_hours_per_month = demand.groupby(demand.index.month).count().to_dict()
-        return demand.resample('m').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
+        return demand.resample('M').transform(lambda x: list(map(dic_hours_per_month.get, x.index.month)))
 
     # Monthly demand rank
     # TODO: parametrize: we can check peaks on a weekly or daily basis
-    demand_m_rank = demand.resample('m').transform(lambda x: x.rank(method='min', ascending=False))
+    demand_m_rank = demand.resample('M').transform(lambda x: x.rank(method='min', ascending=False))
 
     # find which hours are going to be shifted
     bool_shift_from = demand_m_rank <= np.round(hours_per_month(demand) * percent_peak_hrs_month)
