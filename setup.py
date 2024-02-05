@@ -40,6 +40,7 @@ setup(
     long_description=read('README.rst'),
     license="BSD-3-Clause",
     version=find_version("enlopy", "__init__.py"),
+    python_requires = ">=3.9",
     install_requires=requirements,
     keywords=['energy','timeseries','statistics','profile','demand'],
     packages=find_packages(),
@@ -68,6 +69,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
 
         #    distclass=distutils.command.bdist_conda.CondaDistribution,
         #    conda_buildnum=1,
