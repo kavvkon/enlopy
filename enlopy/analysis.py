@@ -26,9 +26,15 @@ def reshape_timeseries(Load, x='dayofyear', y=None, aggfunc='sum'):
         raise ValueError('Works only with 1D')
 
     if x is not None:
-        a[x] = getattr(a.index, x)
+        if x == 'week':  # For a strange reason pandas moved week accesor to isocalendar
+            a[x] = a.index.isocalendar()['week']
+        else:
+            a[x] = getattr(a.index, x)
     if y is not None:
-        a[y] = getattr(a.index, y)
+        if y == 'week':
+            a[y] = a.index.isocalendar()['week']
+        else:
+            a[y] = getattr(a.index, y)
     a = a.reset_index(drop=True)
 
     return a.pivot_table(index=x, columns=y,

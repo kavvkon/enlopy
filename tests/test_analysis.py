@@ -10,6 +10,12 @@ def test_reshape_timeseries():
     assert b.shape == (24,365)
     assert np.isclose(b.sum().sum(), a.sum())
 
+def test_reshape_timeseries_week():
+    a = np.random.rand(8760)
+    b = reshape_timeseries(a, x='hour', y='week', aggfunc='mean')
+    assert b.shape == (52,24)
+    assert np.isclose(b.mean().mean(), a.mean(),0.001)
+
 def test_reshape_multiannual():
     a = np.random.rand(8760*2)
     a = make_timeseries(a, year=2019, freq='h')

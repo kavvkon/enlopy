@@ -82,7 +82,7 @@ class Test_disag():
         x = np.arange(0, 365)
         y = (np.cos(2 * np.pi / 364 * x) * 50 + 100)
 
-        y = make_timeseries(y, freq='d')
+        y = make_timeseries(y, freq='D')
 
         disag_profile = np.random.rand(24)
         y_disag = disag_upsample(y, disag_profile)

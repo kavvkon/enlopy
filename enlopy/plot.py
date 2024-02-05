@@ -89,7 +89,7 @@ def plot_percentiles(Load, x='hour', zz='week', perc_list=[[5, 95], [25, 75], 50
     if ax is None: # Hack for nice jupyter notebook compatibility
         ax=plt.gca()
     a = reshape_timeseries(Load, x=x, y=zz, aggfunc='mean')
-    xx = a.columns.values
+    xx = a.columns.to_list()
 
     # TODO: s 2s 3s instead of percentiles
 

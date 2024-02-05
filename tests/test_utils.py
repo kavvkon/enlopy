@@ -20,7 +20,7 @@ class Test_make_timeseries():
 
     def test_ndarray_x(self):
         a = np.random.rand(8730)
-        b = make_timeseries(a, freq='H')
+        b = make_timeseries(a, freq='h')
         assert isinstance(b, pd.Series)
         assert sum(a) == sum(b)
 
@@ -47,11 +47,11 @@ class Test_make_timeseries():
 
     def test_empty_frame(self):
         a = np.array([])
-        b = make_timeseries(a, freq='H')
+        b = make_timeseries(a, freq='h')
         assert type(b) == pd.Series and len(b)==0
 
     def test_empty_frame_to_indexed_empty(self):
-        b = make_timeseries(freq='H', length=8760)
+        b = make_timeseries(freq='h', length=8760)
         assert isinstance(b, pd.Series) and len(b) == 8760
 
     def test_multiannual_timeseries(self):
