@@ -7,8 +7,13 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   generate
+   analysis
+   plot
+   stats
+   utils
    API
 
 ``enlopy`` is an open source python library with methods to generate,

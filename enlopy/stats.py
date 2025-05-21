@@ -1,7 +1,7 @@
 """This modules contains methods which correspond to estimation of statistics (features) for timeseries."""
 
 import numpy as np
-from scipy.signal import find_peaks_cwt, ricker
+from scipy.signal import find_peaks
 from itertools import groupby
 
 #make it work only with ndarray?
@@ -15,8 +15,11 @@ def get_mean(x, trunced=False):
 def get_lf(x, trunced=False):
     """Load factor"""
     if trunced:
-        x = x[x>0]
-    return np.mean(x)/np.max(x)
+        x = x[x > 0]
+    try:
+        return np.mean(x) / np.max(x)
+    except ZeroDivisionError:
+        return np.nan
 
 def get_trend(x, deg=1):
     # Assumes equally spaced series
@@ -40,8 +43,51 @@ def get_rle(x, a):
 def largest_dur_of_zero(x):
     return max(get_rle(x, 0))
 
-def get_peaks(x, n):
-    return find_peaks_cwt(x, widths=np.arange(1, n + 1), wavelet=ricker)
+def get_peaks(x, min_distance=1, **kwargs):
+    """
+    Find peaks (local maxima) in a 1D array using scipy.signal.find_peaks.
+
+    This implementation replaces the previous CWT-based approach for better
+    efficiency and use of modern SciPy functions.
+
+    Parameters:
+        x (np.ndarray or list-like):
+            The 1D input signal where peaks are to be found.
+        min_distance (int):
+            Minimum horizontal distance (in samples) required between
+            neighboring peaks. Peaks closer than this distance are removed,
+            keeping the highest one. Defaults to 1 (only compare immediate neighbors).
+            This parameter loosely replaces the concept of scale/width (`n`)
+            from the previous implementation.
+        **kwargs:
+            Additional keyword arguments passed directly to scipy.signal.find_peaks.
+            Useful arguments include:
+            - `height` (float or array-like): Minimum peak height.
+            - `threshold` (float or array-like): Minimum vertical distance between peak and neighbors.
+            - `prominence` (float or array-like): Minimum vertical distance peak stands out from surroundings.
+            - `width` (float or array-like): Minimum peak width in samples.
+            See the `scipy.signal.find_peaks` documentation for more details.
+
+    Returns:
+        np.ndarray: Indices of the peaks found in `x` that satisfy the conditions.
+
+    Raises:
+        ValueError: If the input array `x` is not 1D.
+    """
+    # Ensure input is a numpy array for compatibility and checks
+    x_arr = np.asarray(x)
+
+    if x_arr.ndim != 1:
+        raise ValueError(f"Input array must be 1D, but got shape {x_arr.shape}")
+
+    if len(x_arr) == 0:
+        return np.array([], dtype=int) # Handle empty input gracefully
+
+    # Use find_peaks. Pass min_distance as the distance parameter.
+    # Allow users to override/add other parameters via kwargs.
+    peaks_indices, _ = find_peaks(x_arr, distance=min_distance, **kwargs)
+
+    return peaks_indices
 
 
 def get_dur_val(x, a):
@@ -100,6 +146,7 @@ all_stats_desc = {'Sum': np.sum,
                   'Periodicity': lambda x: get_highest_periodicity(x)[0:2],
                   'Autocorrelation(1)': partial(get_autocorr, lag=1),
                   'Trend': get_trend,
-                  'Load ratio (max/min)': get_load_ratio
+                  'Load ratio (max/min)': get_load_ratio,
+                  'Num Prominent Peaks': partial(lambda x: len(get_peaks(x, prominence=np.std(x)/2))),
                   }
 #to add more...
