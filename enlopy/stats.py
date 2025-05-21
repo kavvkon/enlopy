@@ -1,7 +1,7 @@
 """This modules contains methods which correspond to estimation of statistics (features) for timeseries."""
 
 import numpy as np
-from scipy.signal import find_peaks_cwt, ricker
+from scipy.signal import find_peaks_cwt
 from itertools import groupby
 
 #make it work only with ndarray?
@@ -41,7 +41,7 @@ def largest_dur_of_zero(x):
     return max(get_rle(x, 0))
 
 def get_peaks(x, n):
-    return find_peaks_cwt(x, widths=np.arange(1, n + 1), wavelet=ricker)
+    return find_peaks_cwt(x, widths=np.arange(1, n + 1), wavelet='ricker')
 
 
 def get_dur_val(x, a):

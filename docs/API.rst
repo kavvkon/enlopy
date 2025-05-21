@@ -19,6 +19,11 @@ Plotting module
 .. automodule:: enlopy.plot
     :members:
 
+Statistics module
+-----------------
+.. automodule:: enlopy.stats
+    :members:
+
 Utilities module
 ----------------
 .. automodule:: enlopy.utils
